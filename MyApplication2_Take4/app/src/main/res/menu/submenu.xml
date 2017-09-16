@@ -1,0 +1,69 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/action1"
+        android:title="@string/action1"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action2"
+        android:title="@string/action2"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/action3"
+        android:title="@string/action3"
+        android:orderInCategory="100"
+        app:showAsAction="never" >
+
+        <menu>
+            <group
+                android:checkableBehavior="single"
+                >
+                <item android:id="@+id/action3_sub1"
+                    android:title="@string/action3_sub1"
+                    android:orderInCategory="100"
+                    app:showAsAction="never" />
+
+                <item android:id="@+id/action3_sub2"
+                    android:title="@string/action3_sub2"
+                    android:orderInCategory="100"
+                    app:showAsAction="never"/>
+
+                <item android:id="@+id/action3_sub3"
+                    android:title="@string/action3_sub3"
+                    android:orderInCategory="100"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+
+    <item android:id="@+id/action4"
+        android:title="@string/action4"
+        android:orderInCategory="100"
+        app:showAsAction="never" >
+
+        <menu>
+            <group
+                android:checkableBehavior="all"
+                >
+                <item android:id="@+id/action4_sub1"
+                    android:title="@string/action4_sub1"
+                    android:orderInCategory="100"
+                    app:showAsAction="never" />
+
+                <item android:id="@+id/action4_sub2"
+                    android:title="@string/action4_sub2"
+                    android:orderInCategory="100"
+                    app:showAsAction="never"
+
+                    />
+
+                <item android:id="@+id/action4_sub3"
+                    android:title="@string/action4_sub3"
+                    android:orderInCategory="100"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
+</menu>
