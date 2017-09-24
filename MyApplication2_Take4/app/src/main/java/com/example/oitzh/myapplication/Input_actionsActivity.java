@@ -19,12 +19,12 @@ import java.util.List;
 
 public class Input_actionsActivity extends AppCompatActivity {
 
-    public List<Output> outputs;
+    public List<Action> actions;
     public List<Input> inputs;
     Input location;
-    Output lights;
-    Output ac;
-    Output tv;
+    Action lights;
+    Action ac;
+    Action tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +37,14 @@ public class Input_actionsActivity extends AppCompatActivity {
         location = new Input((ToggleButton) findViewById(R.id.gpsBtn), new String[]{"When leaving home", "When arriving home"}, new boolean[]{false, false});
         inputs = new ArrayList<>(Arrays.asList(location));
 
-        lights = new Output((ToggleButton) findViewById(R.id.lightsBtn));
-        ac = new Output((ToggleButton) findViewById(R.id.acBtn));
-        tv = new Output((ToggleButton) findViewById(R.id.tvBtn));
-        outputs = new ArrayList<>(Arrays.asList(lights, tv, ac));
+        lights = new Action((ToggleButton) findViewById(R.id.lightsBtn));
+        ac = new Action((ToggleButton) findViewById(R.id.acBtn));
+        tv = new Action((ToggleButton) findViewById(R.id.tvBtn));
+        actions = new ArrayList<>(Arrays.asList(lights, tv, ac));
 
-        //make sure no output btn is clickable before any input was chosen;
-        for (Output output : outputs) {
-            output.toggleButton.setClickable(false);
+        //make sure no action btn is clickable before any input was chosen;
+        for (Action action : actions) {
+            action.toggleButton.setClickable(false);
         }
 
 
@@ -62,9 +62,9 @@ public class Input_actionsActivity extends AppCompatActivity {
         int id = view.getId();
         switch (id) {
             case R.id.gpsBtn:
-                //make output buttons clickable!
+                //make action buttons clickable!
                 //TODO: replace with a class
-                makeOutputsBtnClickable();
+                makeActionBtnsClickable();
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(Input_actionsActivity.this);
                 builder.setTitle("Choose Triggers");
@@ -74,7 +74,7 @@ public class Input_actionsActivity extends AppCompatActivity {
                         if (AllOptionsUnchecked(location.selectedDialogOptions)) { //if all options are unchecked, unselect the button
                             location.toggleButton.setChecked(false);
                             if (allBtnsUnpressed()) {
-                                makeOutputsBtnUnClickable(); //No input is selected - make output buttons un-clickable
+                                makeActionBtnsUnClickable(); //No input is selected - make action buttons un-clickable
                             }
                         } else {
                             location.toggleButton.setChecked(true); //some triggers are marked
@@ -152,13 +152,13 @@ public class Input_actionsActivity extends AppCompatActivity {
         Intent returnIntent = new Intent();
 
         String msg = "";
-        List<Input> PressedBtns = getSelectedImageButtons();
-        for (Input input : PressedBtns) {
-            msg += input.toggleButton.getTag() + ":"; //Get imageButton's tag attribute
+        List<IO> PressedBtns = getSelectedButtons();
+        for (IO io : PressedBtns) {
+            msg += io.getToggleButton().getTag() + ":"; //Get imageButton's tag attribute
             //msg += getResources().getResourceName(imageButton.getId()).split("/")[1] + ":"; //"Input: ";
-            for (int index = 0; index < input.selectedDialogOptions.length; index++) {
-                if (input.selectedDialogOptions[index] == true) {
-                    msg += input.dialogOptions[index] + "  ";
+            for (int index = 0; index < io.getSelectedDialogOptions().length; index++) {
+                if (io.getSelectedDialogOptions()[index] == true) {
+                    msg += io.getDialogOptions()[index] + "  ";
                 }
             }
         }
@@ -168,25 +168,30 @@ public class Input_actionsActivity extends AppCompatActivity {
         finish();
     }
 
-    protected List getSelectedImageButtons() {
-        List<Input> imageButtonsArray = new ArrayList();
+    protected List getSelectedButtons() {
+        List<IO> ButtonsArray = new ArrayList();
         for (Input input : inputs) {
             if (input.toggleButton.isChecked()) {
-                imageButtonsArray.add(location);
+                ButtonsArray.add(location);
             }
         }
-        return imageButtonsArray;
+        for (Action action : actions) {
+            if (action.toggleButton.isChecked()) {
+                ButtonsArray.add(location);
+            }
+        }
+        return ButtonsArray;
     }
 
-    public void makeOutputsBtnClickable() {
-        for (Output output : outputs) {
-            output.toggleButton.setClickable(true);
+    public void makeActionBtnsClickable() {
+        for (Action action : actions) {
+            action.toggleButton.setClickable(true);
         }
     }
 
-    public void makeOutputsBtnUnClickable() {
-        for (Output output : outputs) {
-            output.toggleButton.setClickable(false);
+    public void makeActionBtnsUnClickable() {
+        for (Action action : actions) {
+            action.toggleButton.setClickable(false);
         }
     }
 

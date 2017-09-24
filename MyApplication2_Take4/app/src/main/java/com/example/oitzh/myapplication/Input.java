@@ -7,7 +7,7 @@ import android.widget.ToggleButton;
  * Created by oitzh on 21/09/2017.
  */
 
-public class Input {
+public class Input implements IO {
 
     public ToggleButton toggleButton;
     public String[] dialogOptions;
@@ -23,5 +23,20 @@ public class Input {
         this.toggleButton = toggleButton;
         this.dialogOptions = null;
         this.selectedDialogOptions = null;
+    }
+
+    @Override
+    public ToggleButton getToggleButton() {
+        return this.toggleButton;
+    }
+
+    @Override
+    public String[] getDialogOptions() {
+        return this.dialogOptions;
+    }
+
+    @Override
+    public boolean[] getSelectedDialogOptions() {
+        return this.selectedDialogOptions;
     }
 }
