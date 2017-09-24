@@ -1,13 +1,12 @@
 package com.example.oitzh.myapplication;
 
-import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
 /**
  * Created by oitzh on 21/09/2017.
  */
 
-public class Input implements IO {
+public class Input implements IA {
 
     public ToggleButton toggleButton;
     public String[] dialogOptions;

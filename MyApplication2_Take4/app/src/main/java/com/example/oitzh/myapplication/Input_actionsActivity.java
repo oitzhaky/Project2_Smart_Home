@@ -152,13 +152,13 @@ public class Input_actionsActivity extends AppCompatActivity {
         Intent returnIntent = new Intent();
 
         String msg = "";
-        List<IO> PressedBtns = getSelectedButtons();
-        for (IO io : PressedBtns) {
-            msg += io.getToggleButton().getTag() + ":"; //Get imageButton's tag attribute
+        List<IA> PressedBtns = getSelectedButtons();
+        for (IA ia : PressedBtns) {
+            msg += ia.getToggleButton().getTag() + ":"; //Get imageButton's tag attribute
             //msg += getResources().getResourceName(imageButton.getId()).split("/")[1] + ":"; //"Input: ";
-            for (int index = 0; index < io.getSelectedDialogOptions().length; index++) {
-                if (io.getSelectedDialogOptions()[index] == true) {
-                    msg += io.getDialogOptions()[index] + "  ";
+            for (int index = 0; index < ia.getSelectedDialogOptions().length; index++) {
+                if (ia.getSelectedDialogOptions()[index] == true) {
+                    msg += ia.getDialogOptions()[index] + "  ";
                 }
             }
         }
@@ -169,15 +169,15 @@ public class Input_actionsActivity extends AppCompatActivity {
     }
 
     protected List getSelectedButtons() {
-        List<IO> ButtonsArray = new ArrayList();
+        List<IA> ButtonsArray = new ArrayList();
         for (Input input : inputs) {
             if (input.toggleButton.isChecked()) {
-                ButtonsArray.add(location);
+                ButtonsArray.add(input);
             }
         }
         for (Action action : actions) {
             if (action.toggleButton.isChecked()) {
-                ButtonsArray.add(location);
+                ButtonsArray.add(action);
             }
         }
         return ButtonsArray;
