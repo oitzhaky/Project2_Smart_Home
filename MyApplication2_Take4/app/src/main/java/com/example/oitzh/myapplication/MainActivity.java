@@ -13,6 +13,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     ListView listView;
@@ -50,9 +51,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void createActivity(View v) {
         Intent i = new Intent(this, Input_actionsActivity.class);
-       // Intent i = new Intent(this, InfoActivity.class);
         startActivityForResult(i, MY_CHILD_ACTIVITY);
     }
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -61,9 +63,15 @@ public class MainActivity extends AppCompatActivity {
             case (MY_CHILD_ACTIVITY) : {
                 if (resultCode == Activity.RESULT_OK) {
                     // TODO Extract the data returned from the child Activity.
-                    String returnValue = data.getStringExtra("result");
-                    ItemModelList.add(new Model(returnValue));
+                    EventSer event = (EventSer) data.getSerializableExtra("result");
+                    ItemModelList.add(new Model(event.printString()));
+                    //customAdapter.notifyDataSetChanged();
+
+
+                    //String returnValue = data.getStringExtra("result");
+                    //ItemModelList.add(new Model(returnValue));
                     customAdapter.notifyDataSetChanged();
+
                    // Toast.makeText(getApplicationContext(), returnValue, Toast.LENGTH_SHORT).show();
                 }
                 break;

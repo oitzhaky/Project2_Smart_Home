@@ -8,10 +8,12 @@ import android.widget.ToggleButton;
 
 public interface IA {
 
-    public ToggleButton getToggleButton();
+    public int getToggleButton();
 
     public String[] getDialogOptions();
 
     public boolean[] getSelectedDialogOptions();
+
+    public String getTagName();
 
 }
