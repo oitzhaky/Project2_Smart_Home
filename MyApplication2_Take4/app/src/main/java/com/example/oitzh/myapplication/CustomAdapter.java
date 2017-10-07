@@ -75,7 +75,6 @@ public class CustomAdapter extends BaseAdapter {
                     mainActivity.editActivity(imgEdit,editScenario);
                     //Toast.makeText(context, String.valueOf(position) , Toast.LENGTH_SHORT).show();
                     notifyDataSetChanged();
-                    //TODO:implement
                 }
             });
         }

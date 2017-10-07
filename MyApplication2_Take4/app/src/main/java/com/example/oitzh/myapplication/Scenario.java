@@ -18,23 +18,28 @@ public class Scenario implements Serializable {
     private List<IA> toggledButtons = new ArrayList<>();
     String scenarioName;
 
+    public Scenario(){
+
+    }
     public Scenario(String scenarioName){
         this.scenarioName = scenarioName;
         this.toggledButtons = null;
     }
-
-    public Scenario(){
-
+    public Scenario(List<IA> list) {
+        toggledButtons = list;
+    }
+    public Scenario(String scenarioName,List<IA> list){
+        this.scenarioName = scenarioName;
+        this.toggledButtons = list;
+    }
+    public Scenario(Scenario scenario){
+        this.scenarioName = new String(scenario.getScenarioName());
+        this.toggledButtons = new ArrayList<>(scenario.getToggledButtonsArray());
     }
 
     public List<IA> getToggledButtonsArray() {
         return toggledButtons;
     }
-
-    public Scenario(List<IA> list) {
-        toggledButtons = list;
-    }
-
     public String getScenarioName() {
         return scenarioName;
     }

@@ -33,20 +33,19 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @SuppressLint("NewApi")
-    public void addValue(View v) {
-        String name = editTextView.getText().toString();
-        if (name.isEmpty()) {
-            Toast.makeText(getApplicationContext(), "Plz enter Values",
-                    Toast.LENGTH_SHORT).show();
-        } else {
-            //TODO: use this lines for giving the scenario a name
-            Scenario md = new Scenario(name);
-            itemScenarioList.add(md);
-            customAdapter.notifyDataSetChanged();
-            editTextView.setText("");
-        }
-    }
+//    @SuppressLint("NewApi")
+//    public void addValue(View v) {
+//        String name = editTextView.getText().toString();
+//        if (name.isEmpty()) {
+//            Toast.makeText(getApplicationContext(), "Plz enter Values",
+//                    Toast.LENGTH_SHORT).show();
+//        } else {
+//            Scenario md = new Scenario(name);
+//            itemScenarioList.add(md);
+//            customAdapter.notifyDataSetChanged();
+//            editTextView.setText("");
+//        }
+//    }
 
     //Call an activity for creating a scenario
     public void createActivity(View v) {
@@ -56,11 +55,11 @@ public class MainActivity extends AppCompatActivity {
 
     //Call an activity for editing existing a scenario
     //TODO: 2 problems: how to get the right position and how to pass info and receive back?
-    public void editActivity(View v, Scenario editedScenario ) {
+    public void editActivity(View v, Scenario editedScenario) {
         Intent i = new Intent(this, Input_actionsActivity.class);
         //Scenario editedScenario = itemScenarioList.get(itemScenarioList.size()-1);
         i.putExtra("edit",editedScenario);
-        startActivityForResult(i, MY_EDIT_CHILD_ACTIVITY);
+        startActivityForResult(i, MY_CHILD_ACTIVITY);
     }
 
 
@@ -73,13 +72,9 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     Scenario scenarioCreated = (Scenario) data.getSerializableExtra("result");
                     //TODO: add the scenario itself to the list and not the printstring()!
-                    itemScenarioList.add(new Scenario(scenarioCreated.printString()));
+                    //itemScenarioList.add(new Scenario(scenarioCreated.printString()));
+                    itemScenarioList.add(new Scenario(scenarioCreated));
                     customAdapter.notifyDataSetChanged();
-
-
-                    //String returnValue = data.getStringExtra("result");
-                    //ItemModelList.add(new Model(returnValue));
-                    //customAdapter.notifyDataSetChanged();
 
                    // Toast.makeText(getApplicationContext(), returnValue, Toast.LENGTH_SHORT).show();
                 }
