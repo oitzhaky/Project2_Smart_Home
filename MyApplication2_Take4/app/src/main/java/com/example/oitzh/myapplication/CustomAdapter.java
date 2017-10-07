@@ -2,12 +2,14 @@ package com.example.oitzh.myapplication;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -17,11 +19,13 @@ import java.util.ArrayList;
 
 public class CustomAdapter extends BaseAdapter {
     Context context;
-    ArrayList<Model> itemModelList;
+    MainActivity mainActivity;
+    ArrayList<Scenario> itemModelList;
 
-    public CustomAdapter(Context context, ArrayList<Model> modelList) {
+    public CustomAdapter(Context context, ArrayList<Scenario> scenarioList, MainActivity mainActivity) {
         this.context = context;
-        this.itemModelList = modelList;
+        this.itemModelList = scenarioList;
+        this.mainActivity = mainActivity;
     }
 
     @Override
@@ -43,19 +47,35 @@ public class CustomAdapter extends BaseAdapter {
     public View getView(final int position, View convertView, ViewGroup parent) {
         convertView = null;
         if (convertView == null) {
-            LayoutInflater mInflater = (LayoutInflater) context
+            final LayoutInflater mInflater = (LayoutInflater) context
                     .getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
             convertView = mInflater.inflate(R.layout.item, null);
             TextView tvName = (TextView) convertView.findViewById(R.id.tvName);
             ImageView imgRemove = (ImageView) convertView.findViewById(R.id.imgRemove);
-            Model m = itemModelList.get(position);
-            tvName.setText(m.getName());
-            // click listiner for remove button
+            final ImageView imgEdit = (ImageView) convertView.findViewById(R.id.imgEdit);
+            final Scenario m = itemModelList.get(position);
+
+            //Set the view's text
+            tvName.setText(m.getScenarioName());
+
+            // click listener for remove button
             imgRemove.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     itemModelList.remove(position);
                     notifyDataSetChanged();
+                }
+            });
+            // click listener for edit button
+            imgEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Scenario editScenario =  itemModelList.remove(position);
+                    //itemModelList.add(editScenario);
+                    mainActivity.editActivity(imgEdit,editScenario);
+                    //Toast.makeText(context, String.valueOf(position) , Toast.LENGTH_SHORT).show();
+                    notifyDataSetChanged();
+                    //TODO:implement
                 }
             });
         }
