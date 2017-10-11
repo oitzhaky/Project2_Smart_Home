@@ -8,17 +8,28 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.amazonaws.mobileconnectors.iot.AWSIotMqttLastWillAndTestament;
+import com.amazonaws.mobileconnectors.iot.AWSIotMqttManager;
+import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
+
+import static com.example.oitzh.myapplication.MainActivity.LOG_TAG;
+
+
 
 public class Input_actionsActivity extends AppCompatActivity {
+
 
     public List<Action> actions;
     public List<Input> inputs;
@@ -26,6 +37,7 @@ public class Input_actionsActivity extends AppCompatActivity {
     Action lights;
     Action ac;
     Action tv;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +86,7 @@ public class Input_actionsActivity extends AppCompatActivity {
         if(allBtnsUnpressed()) {
             makeActionBtnsUnClickable();
         }
+
     }
 
 
