@@ -34,7 +34,16 @@ import java.util.UUID;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    final int MY_CHILD_ACTIVITY = 1;
+    final int MY_EDIT_CHILD_ACTIVITY = 2;
+    ListView listView;
+    EditText editTextView;
+    ArrayList<Scenario> itemScenarioList;
+    CustomAdapter customAdapter;
+
     static final String LOG_TAG = MainActivity.class.getCanonicalName();
+
+    //region AWS Variables
     // IoT endpoint
     // AWS Iot CLI describe-endpoint call returns: XXXXXXXXXX.iot.<region>.amazonaws.com
     private static final String CUSTOMER_SPECIFIC_ENDPOINT = "a3n7np6iiz4al5.iot.us-east-1.amazonaws.com";
@@ -53,12 +62,7 @@ public class MainActivity extends AppCompatActivity {
     // --- Constants to modify per your configuration ---
     // Certificate and key aliases in the KeyStore
     private static final String CERTIFICATE_ID = "default";
-    final int MY_CHILD_ACTIVITY = 1;
-    final int MY_EDIT_CHILD_ACTIVITY = 2;
-    ListView listView;
-    EditText editTextView;
-    ArrayList<Scenario> itemScenarioList;
-    CustomAdapter customAdapter;
+
     EditText txtSubcribe;
     EditText txtTopic;
     EditText txtMessage;
@@ -83,52 +87,8 @@ public class MainActivity extends AppCompatActivity {
     String certificateId;
 
     CognitoCachingCredentialsProvider credentialsProvider;
-    View.OnClickListener connectClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
+    //endregion
 
-            Log.d(LOG_TAG, "clientId = " + clientId);
-
-            try {
-                mqttManager.connect(clientKeyStore, new AWSIotMqttClientStatusCallback() {
-                    @Override
-                    public void onStatusChanged(final AWSIotMqttClientStatus status,
-                                                final Throwable throwable) {
-                        Log.d(LOG_TAG, "Status = " + String.valueOf(status));
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (status == AWSIotMqttClientStatus.Connecting) {
-                                    tvStatus.setText("Connecting...");
-
-                                } else if (status == AWSIotMqttClientStatus.Connected) {
-                                    tvStatus.setText("Connected");
-
-                                } else if (status == AWSIotMqttClientStatus.Reconnecting) {
-                                    if (throwable != null) {
-                                        Log.e(LOG_TAG, "Connection error.", throwable);
-                                    }
-                                    tvStatus.setText("Reconnecting");
-                                } else if (status == AWSIotMqttClientStatus.ConnectionLost) {
-                                    if (throwable != null) {
-                                        Log.e(LOG_TAG, "Connection error.", throwable);
-                                    }
-                                    tvStatus.setText("Disconnected");
-                                } else {
-                                    tvStatus.setText("Disconnected");
-
-                                }
-                            }
-                        });
-                    }
-                });
-            } catch (final Exception e) {
-                Log.e(LOG_TAG, "Connection error.", e);
-                tvStatus.setText("Error! " + e.getMessage());
-            }
-        }
-    };
 
 //    @SuppressLint("NewApi")
 //    public void addValue(View v) {
@@ -155,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setEmptyView(findViewById(android.R.id.empty));
         listView.setAdapter(customAdapter);
 
-
+        //region AWS Code
         //super.onCreate(savedInstanceState);
         //setContentView(R.layout.activity_main);
 
@@ -297,8 +257,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }).start();
         }
-
-
+        //endregion
     }
 
     //Call an activity for creating a scenario
@@ -334,5 +293,54 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    //region AWS CONNECT Listener Code
+    View.OnClickListener connectClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            Log.d(LOG_TAG, "clientId = " + clientId);
+
+            try {
+                mqttManager.connect(clientKeyStore, new AWSIotMqttClientStatusCallback() {
+                    @Override
+                    public void onStatusChanged(final AWSIotMqttClientStatus status,
+                                                final Throwable throwable) {
+                        Log.d(LOG_TAG, "Status = " + String.valueOf(status));
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (status == AWSIotMqttClientStatus.Connecting) {
+                                    tvStatus.setText("Connecting...");
+
+                                } else if (status == AWSIotMqttClientStatus.Connected) {
+                                    tvStatus.setText("Connected");
+
+                                } else if (status == AWSIotMqttClientStatus.Reconnecting) {
+                                    if (throwable != null) {
+                                        Log.e(LOG_TAG, "Connection error.", throwable);
+                                    }
+                                    tvStatus.setText("Reconnecting");
+                                } else if (status == AWSIotMqttClientStatus.ConnectionLost) {
+                                    if (throwable != null) {
+                                        Log.e(LOG_TAG, "Connection error.", throwable);
+                                    }
+                                    tvStatus.setText("Disconnected");
+                                } else {
+                                    tvStatus.setText("Disconnected");
+
+                                }
+                            }
+                        });
+                    }
+                });
+            } catch (final Exception e) {
+                Log.e(LOG_TAG, "Connection error.", e);
+                tvStatus.setText("Error! " + e.getMessage());
+            }
+        }
+    };
+    //endregion
 }
 

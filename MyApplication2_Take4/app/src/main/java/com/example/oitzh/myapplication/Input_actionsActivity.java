@@ -10,14 +10,22 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttLastWillAndTestament;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttManager;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.iot.AWSIotClient;
 
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -30,14 +38,12 @@ import static com.example.oitzh.myapplication.MainActivity.LOG_TAG;
 
 public class Input_actionsActivity extends AppCompatActivity {
 
-
     public List<Action> actions;
     public List<Input> inputs;
     Input location;
     Action lights;
     Action ac;
     Action tv;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +174,8 @@ public class Input_actionsActivity extends AppCompatActivity {
         }
 
 
+
+
     }
 
     protected boolean AllOptionsUnchecked(boolean[] selectedLocationOptions) {
@@ -254,6 +262,9 @@ public class Input_actionsActivity extends AppCompatActivity {
         }
         return true;
     }
+
+
+
 
 }
 
