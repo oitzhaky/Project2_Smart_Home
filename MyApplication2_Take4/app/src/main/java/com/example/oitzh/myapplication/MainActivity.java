@@ -1,6 +1,5 @@
 package com.example.oitzh.myapplication;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +17,6 @@ import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttLastWillAndTestament;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttManager;
-import com.amazonaws.mobileconnectors.iot.AWSIotMqttNewMessageCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
@@ -27,7 +25,6 @@ import com.amazonaws.services.iot.model.AttachPrincipalPolicyRequest;
 import com.amazonaws.services.iot.model.CreateKeysAndCertificateRequest;
 import com.amazonaws.services.iot.model.CreateKeysAndCertificateResult;
 
-import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.util.UUID;
 
@@ -88,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
 
     CognitoCachingCredentialsProvider credentialsProvider;
     //endregion
-
 
 //    @SuppressLint("NewApi")
 //    public void addValue(View v) {
@@ -267,7 +263,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Call an activity for editing existing a scenario
-    //TODO: 2 problems: how to get the right position and how to pass info and receive back?
     public void editActivity(View v, Scenario editedScenario) {
         Intent i = new Intent(this, Input_actionsActivity.class);
         //Scenario editedScenario = itemScenarioList.get(itemScenarioList.size()-1);
@@ -282,8 +277,7 @@ public class MainActivity extends AppCompatActivity {
             case (MY_CHILD_ACTIVITY): {
                 if (resultCode == Activity.RESULT_OK) {
                     Scenario scenarioCreated = (Scenario) data.getSerializableExtra("result");
-                    //TODO: add the scenario itself to the list and not the printstring()!
-                    //itemScenarioList.add(new Scenario(scenarioCreated.printString()));
+                    publishScenario(scenarioCreated); //publish to aws server!
                     itemScenarioList.add(new Scenario(scenarioCreated));
                     customAdapter.notifyDataSetChanged();
 
@@ -341,6 +335,31 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+    //endregion
+
+    //region Publish AWS Func
+public void publishScenario(Scenario publishedScenario){
+
+            final String topic = "AWS/Scenario";
+            final String msg = publishedScenario.getScenarioName();
+
+            try {
+                mqttManager.publishString(msg, topic, AWSIotMqttQos.QOS0);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Publish error.", e);
+            }
+
+        }
+public void publishRemovedScenario(Scenario removedScenario){
+    final String topic = "AWS/Scenario";
+    final String msg = "REMOVED!" + removedScenario.getScenarioName();
+
+    try {
+        mqttManager.publishString(msg, topic, AWSIotMqttQos.QOS0);
+    } catch (Exception e) {
+        Log.e(LOG_TAG, "Publish error.", e);
+    }
+}
     //endregion
 }
 

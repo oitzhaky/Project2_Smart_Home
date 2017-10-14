@@ -8,7 +8,7 @@ import android.widget.ToggleButton;
 
 public interface IA {
 
-    public int getToggleButton();
+    public int getToggleButtonID();
 
     public String[] getDialogOptions();
 

@@ -45,7 +45,7 @@ public class Event implements Parcelable {
     public String printString() {
         String msg = "";
         for (IA ia : toggledButtons) {
-            msg += ia.getToggleButton().getTag() + ":"; //Get imageButton's tag attribute
+            msg += ia.getToggleButtonID().getTag() + ":"; //Get imageButton's tag attribute
             //msg += getResources().getResourceName(imageButton.getId()).split("/")[1] + ":"; //"Input: ";
             for (int index = 0; index < ia.getSelectedDialogOptions().length; index++) {
                 if (ia.getSelectedDialogOptions()[index] == true) {

@@ -21,6 +21,27 @@
         app:layout_constraintTop_toTopOf="parent"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <EditText
+            android:id="@+id/editTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Name your scenario..." />
+        <!--android:hint="@string/EnterHint" />-->
+        <ImageView
+            android:id="@+id/imgViewAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ic_plus"
+            android:onClick="addValue" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -30,6 +51,7 @@
         android:orientation="vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
+
 
         <TextView
             android:id="@+id/textInputs"
@@ -74,7 +96,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="55dp"
+        android:layout_marginTop="35dp"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingLeft="16dp"
@@ -99,7 +121,7 @@
                 android:id="@+id/lightsBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableBottom="@drawable/ic_timer_black_48px"
+                android:drawableBottom="@drawable/ic_lightbulb_on_outline"
                 android:onClick="onClickFunc"
                 android:tag="Lights"
                 android:textOff="Lights"
@@ -109,7 +131,7 @@
                 android:id="@+id/acBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableBottom="@drawable/ic_map_marker"
+                android:drawableBottom="@drawable/ic_oil_temperature"
                 android:onClick="onClickFunc"
                 android:tag="AC"
                 android:textOff="AC"
@@ -119,7 +141,7 @@
                 android:id="@+id/tvBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableBottom="@drawable/ic_climate_control"
+                android:drawableBottom="@drawable/ic_television_classic"
                 android:onClick="onClickFunc"
                 android:tag="TV"
                 android:textOff="TV"

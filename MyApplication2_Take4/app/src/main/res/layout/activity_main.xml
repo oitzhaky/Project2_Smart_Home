@@ -37,28 +37,10 @@
             android:layout_height="wrap_content"
             android:text="@string/txt_view"
             android:layout_marginTop="8dp"
+            android:layout_marginBottom="15dp"
             android:layout_gravity="center" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
 
-
-            <EditText
-                android:id="@+id/editTextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-            <!--android:hint="@string/EnterHint" />-->
-            <ImageView
-                android:id="@+id/imgViewAdd"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/ic_plus"
-                android:onClick="addValue" />
-
-        </LinearLayout>
 
         <ListView
             android:id="@+id/listview"

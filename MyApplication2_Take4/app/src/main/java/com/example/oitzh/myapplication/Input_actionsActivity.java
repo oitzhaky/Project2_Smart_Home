@@ -8,32 +8,18 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback;
-import com.amazonaws.mobileconnectors.iot.AWSIotMqttLastWillAndTestament;
-import com.amazonaws.mobileconnectors.iot.AWSIotMqttManager;
-import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.iot.AWSIotClient;
-
-import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
-import static com.example.oitzh.myapplication.MainActivity.LOG_TAG;
-
+import static com.example.oitzh.myapplication.R.id.editTextView;
 
 
 public class Input_actionsActivity extends AppCompatActivity {
@@ -69,7 +55,10 @@ public class Input_actionsActivity extends AppCompatActivity {
         ab.setDisplayHomeAsUpEnabled(true);
 
         Scenario scenarioToEdit = (Scenario) getIntent().getSerializableExtra("edit");
+        TextView editTextView = (TextView) findViewById(R.id.editTextView);
+
         if (scenarioToEdit != null) { //Initialize current activity
+            editTextView.setText(scenarioToEdit.getScenarioName());
             for (IA toggleButton : scenarioToEdit.getToggledButtonsArray()) {
                 //Iterate over the buttons from edit Scenario and update the new activity's buttons accordingly
                 String currentToggleBtnName = toggleButton.getTagName();
@@ -78,7 +67,7 @@ public class Input_actionsActivity extends AppCompatActivity {
                     Input curr = it.next();
                     if (curr.getTagName().equals(currentToggleBtnName)) {
                         curr.selectedDialogOptions = toggleButton.getSelectedDialogOptions(); //TODO:should use NEW?
-                        int id = curr.getToggleButton();
+                        int id = curr.getToggleButtonID();
                         ToggleButton toggleBtn = (ToggleButton) findViewById(id);
                         toggleBtn.setChecked(true);
 
@@ -89,7 +78,7 @@ public class Input_actionsActivity extends AppCompatActivity {
         }
         //make sure no action btn is clickable before any input was chosen;
         //Pay attention to do it after extracting scenario if exists!
-        if(allBtnsUnpressed()) {
+        if (allBtnsUnpressed()) {
             makeActionBtnsUnClickable();
         }
 
@@ -122,13 +111,11 @@ public class Input_actionsActivity extends AppCompatActivity {
                 builder.setMultiChoiceItems(location.dialogOptions, location.selectedDialogOptions, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                        //ToggleButton imageButton= (ToggleButton)findViewById(R.id.gpsBtn);
                         final AlertDialog alertDialog = (AlertDialog) dialog;
                         final ListView alertDialogList = alertDialog.getListView();
 
                         if (isChecked) {
                             toggleButton.setChecked(true);
-                            //imageButton.setPressed(true);
 
                             if (location.dialogOptions[which].equals("When leaving home")) {
                                 int stringIndex = Arrays.asList(location.dialogOptions).indexOf("When arriving home");
@@ -139,25 +126,22 @@ public class Input_actionsActivity extends AppCompatActivity {
                                 alertDialogList.getChildAt(stringIndex).setEnabled(false);
                                 location.selectedDialogOptions[stringIndex] = false;
                             }
-
-                            Toast.makeText(Input_actionsActivity.this, "You chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
+                            //Toast.makeText(Input_actionsActivity.this, "You chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
 
                         } else {
                             if (location.dialogOptions[which].equals("When leaving home")) {
                                 int stringIndex = Arrays.asList(location.dialogOptions).indexOf("When arriving home");
                                 alertDialogList.getChildAt(stringIndex).setEnabled(true);
-                                //location.selectedDialogOptions[Arrays.asList(location.dialogOptions).indexOf("When arriving home")]=false;
                             } else {
                                 int stringIndex = Arrays.asList(location.dialogOptions).indexOf("When leaving home");
                                 alertDialogList.getChildAt(stringIndex).setEnabled(true);
-                                //location.selectedDialogOptions[Arrays.asList(location.dialogOptions).indexOf("When leaving home")]=false;
                             }
 
                             if (AllOptionsUnchecked(location.selectedDialogOptions)) { //if all options are unchecked, unselect the Togglebutton
                                 toggleButton.setChecked(false);
-                                //imageButton.setPressed(false);
+
                             }
-                            Toast.makeText(Input_actionsActivity.this, "You UN-chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
+                            //Toast.makeText(Input_actionsActivity.this, "You UN-chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
                         }
                     }
                 });
@@ -173,9 +157,6 @@ public class Input_actionsActivity extends AppCompatActivity {
 
         }
 
-
-
-
     }
 
     protected boolean AllOptionsUnchecked(boolean[] selectedLocationOptions) {
@@ -188,46 +169,52 @@ public class Input_actionsActivity extends AppCompatActivity {
     }
 
     protected void submitData(View view) {
+        TextView editTextView = (TextView) findViewById(R.id.editTextView);
+        String name = editTextView.getText().toString();
 
-        //Create Intent to hold the returned message for the calling activity
-        Intent returnIntent = new Intent();
+        if (name.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please enter name for the scenario",
+                    Toast.LENGTH_SHORT).show();
+        } else {
 
-        String msg = "";
-        List<IA> pressedBtnsList = getSelectedButtons();
-        //List<String> buttonsNameList = getSelectedButtonsName(pressedBtnsList);
+            //Create Intent to hold the returned message for the calling activity
+            Intent returnIntent = new Intent();
 
+            String msg = "";
+            List<IA> pressedBtnsList = getSelectedButtons();
 
+            //If we want the name of the selected buttons and their options
+            for (IA ia : pressedBtnsList) {
+                int id = ia.getToggleButtonID();
+                final ToggleButton toggleButton = (ToggleButton) findViewById(id);
 
-        for (IA ia : pressedBtnsList) {
-            int id = ia.getToggleButton();
-            final ToggleButton toggleButton = (ToggleButton) findViewById(id);
-
-            msg += toggleButton.getTag() + ":"; //Get imageButton's tag attribute
-            //msg += getResources().getResourceName(imageButton.getId()).split("/")[1] + ":"; //"Input: ";
-            for (int index = 0; index < ia.getSelectedDialogOptions().length; index++) {
-                if (ia.getSelectedDialogOptions()[index] == true) {
-                    msg += ia.getDialogOptions()[index] + "  ";
+                msg += toggleButton.getTag() + ":"; //Get imageButton's tag attribute
+                //msg += getResources().getResourceName(imageButton.getId()).split("/")[1] + ":"; //"Input: ";
+                for (int index = 0; index < ia.getSelectedDialogOptions().length; index++) {
+                    if (ia.getSelectedDialogOptions()[index] == true) {
+                        msg += ia.getDialogOptions()[index] + "  ";
+                    }
                 }
             }
-        }
 
-        Scenario scenario = new Scenario(msg,pressedBtnsList);
-        returnIntent.putExtra("result", scenario);
-        setResult(Activity.RESULT_OK, returnIntent);
-        finish();
+            Scenario scenario = new Scenario(name, pressedBtnsList);
+            returnIntent.putExtra("result", scenario);
+            setResult(Activity.RESULT_OK, returnIntent);
+            finish();
+        }
     }
 
     protected List getSelectedButtons() {
         List<IA> ButtonsArray = new ArrayList();
         for (Input input : inputs) {
-            int id = input.getToggleButton();
+            int id = input.getToggleButtonID();
             final ToggleButton toggleButton = (ToggleButton) findViewById(id);
             if (toggleButton.isChecked()) {
                 ButtonsArray.add(input);
             }
         }
         for (Action action : actions) {
-            int id = action.getToggleButton();
+            int id = action.getToggleButtonID();
             final ToggleButton toggleButton = (ToggleButton) findViewById(id);
             if (toggleButton.isChecked()) {
                 ButtonsArray.add(action);
@@ -238,7 +225,7 @@ public class Input_actionsActivity extends AppCompatActivity {
 
     public void makeActionBtnsClickable() {
         for (Action action : actions) {
-            int id = action.getToggleButton();
+            int id = action.getToggleButtonID();
             final ToggleButton toggleButton = (ToggleButton) findViewById(id);
             toggleButton.setClickable(true);
         }
@@ -246,7 +233,7 @@ public class Input_actionsActivity extends AppCompatActivity {
 
     public void makeActionBtnsUnClickable() {
         for (Action action : actions) {
-            int id = action.getToggleButton();
+            int id = action.getToggleButtonID();
             final ToggleButton toggleButton = (ToggleButton) findViewById(id);
             toggleButton.setClickable(false);
         }
@@ -254,7 +241,7 @@ public class Input_actionsActivity extends AppCompatActivity {
 
     public boolean allBtnsUnpressed() {
         for (Input input : inputs) {
-            int id = input.getToggleButton();
+            int id = input.getToggleButtonID();
             final ToggleButton toggleButton = (ToggleButton) findViewById(id);
             if (toggleButton.isChecked()) {
                 return false;
@@ -262,8 +249,6 @@ public class Input_actionsActivity extends AppCompatActivity {
         }
         return true;
     }
-
-
 
 
 }
