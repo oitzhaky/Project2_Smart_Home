@@ -8,11 +8,16 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +25,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import static com.example.oitzh.myapplication.R.id.editTextView;
+import static com.example.oitzh.myapplication.R.id.tempAbove_checkBox;
+import static com.example.oitzh.myapplication.R.id.tempAbove_text;
+import static com.example.oitzh.myapplication.R.id.tempBelow_checkBox;
 
 
 public class Input_actionsActivity extends AppCompatActivity {
@@ -27,6 +35,8 @@ public class Input_actionsActivity extends AppCompatActivity {
     public List<Action> actions;
     public List<Input> inputs;
     Input location;
+    Input climate;
+    Input time;
     Action lights;
     Action ac;
     Action tv;
@@ -40,7 +50,8 @@ public class Input_actionsActivity extends AppCompatActivity {
 
 
         location = new Input((R.id.gpsBtn), new String[]{"When leaving home", "When arriving home"}, new boolean[]{false, false}, (String) findViewById(R.id.gpsBtn).getTag());
-        inputs = new ArrayList<>(Arrays.asList(location));
+        climate = new Input((R.id.climateBtn), new String[]{"When Temp is above degrees", "When Temp is below degrees", "When Temp is above degrees and below degrees"}, new boolean[]{false, false, false}, (String) findViewById(R.id.climateBtn).getTag());
+        inputs = new ArrayList<>(Arrays.asList(location, climate));
 
         lights = new Action(R.id.lightsBtn);
         ac = new Action(R.id.acBtn);
@@ -88,14 +99,24 @@ public class Input_actionsActivity extends AppCompatActivity {
     protected void onClickFunc(View view) {
         int id = view.getId();
         final ToggleButton toggleButton = (ToggleButton) findViewById(id);
+        //make action buttons clickable - we have at least one input button!
+        makeActionBtnsClickable();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(Input_actionsActivity.this);
+        builder.setTitle("Choose Triggers");
+        builder.setIcon(R.drawable.ic_event_black_48px);
+        builder.setCancelable(false);  // disallow cancel of AlertDialog on click of back button and outside touch
+//        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//
+//            @Override
+//            public void onClick(DialogInterface dialog, int which) {
+//                Toast.makeText(getBaseContext(), "Cancel clicked", Toast.LENGTH_SHORT).show();
+//            }
+//        });
+        LayoutInflater inflater = this.getLayoutInflater();
         switch (id) {
             case R.id.gpsBtn:
-                //make action buttons clickable - we have at least one input button!
-                makeActionBtnsClickable();
-
-                AlertDialog.Builder builder = new AlertDialog.Builder(Input_actionsActivity.this);
-                builder.setTitle("Choose Triggers");
-                builder.setIcon(R.drawable.ic_event_black_48px);
+                //region GPS BUTTON
                 builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (AllOptionsUnchecked(location.selectedDialogOptions)) { //if all options are unchecked, unselect the button
@@ -115,7 +136,7 @@ public class Input_actionsActivity extends AppCompatActivity {
                         final ListView alertDialogList = alertDialog.getListView();
 
                         if (isChecked) {
-                            toggleButton.setChecked(true);
+                            toggleButton.setChecked(true); //make the main button checked
 
                             if (location.dialogOptions[which].equals("When leaving home")) {
                                 int stringIndex = Arrays.asList(location.dialogOptions).indexOf("When arriving home");
@@ -145,11 +166,137 @@ public class Input_actionsActivity extends AppCompatActivity {
                         }
                     }
                 });
-
                 builder.create().show();
                 break;
-
+            //endregion
             case R.id.climateBtn:
+
+                final View viewDialog = inflater.inflate(R.layout.climate_alert, null);
+                builder.setView(viewDialog);
+                final CheckBox tempAbove_checkBox = (CheckBox) viewDialog.findViewById(R.id.tempAbove_checkBox);
+                final CheckBox tempbelow_checkBox = (CheckBox) viewDialog.findViewById(R.id.tempBelow_checkBox); // what id do you have?
+                final EditText tempAbove_editText = (EditText) viewDialog.findViewById(R.id.tempAbove_text);
+                final EditText tempBelow_editText = (EditText) viewDialog.findViewById(R.id.tempBelow_text);
+                final int aboveStringIndex = findIndexInArray(Arrays.asList(climate.dialogOptions), "above");
+                final int belowStringIndex = findIndexInArray(Arrays.asList(climate.dialogOptions), "below");
+
+                //Build last state of dialog controls before showing it
+                final String aboveTempLastWord = climate.dialogOptions[aboveStringIndex].substring(climate.dialogOptions[aboveStringIndex].lastIndexOf(" ") + 1);
+                tempAbove_editText.setText(aboveTempLastWord.equals("degrees") ? "" : aboveTempLastWord);
+                tempAbove_checkBox.setChecked(climate.selectedDialogOptions[aboveStringIndex]);
+                tempbelow_checkBox.setChecked(climate.selectedDialogOptions[belowStringIndex]);
+                final String belowTempLastWord = climate.dialogOptions[belowStringIndex].substring(climate.dialogOptions[belowStringIndex].lastIndexOf(" ") + 1);
+                tempBelow_editText.setText(belowTempLastWord.equals("degrees") ? "" : belowTempLastWord);
+
+
+                tempAbove_checkBox.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (tempAbove_checkBox.isChecked()) {
+                            tempbelow_checkBox.setChecked(false);
+                            tempbelow_checkBox.setClickable(false);
+                            tempbelow_checkBox.setEnabled(false); //disable the checkbox
+                            tempBelow_editText.setEnabled(false);
+                            tempBelow_editText.setClickable(false);
+                        } else {
+                            tempbelow_checkBox.setClickable(true);
+                            tempbelow_checkBox.setEnabled(true);
+                            tempBelow_editText.setEnabled(true);
+                            tempBelow_editText.setClickable(true);
+                        }
+                    }
+                });
+                tempbelow_checkBox.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (tempbelow_checkBox.isChecked()) {
+                            tempAbove_checkBox.setChecked(false);
+                            tempAbove_checkBox.setClickable(false);
+                            tempAbove_checkBox.setEnabled(false);
+                            tempAbove_editText.setEnabled(false);
+                            tempAbove_editText.setClickable(false);
+                        } else {
+                            tempAbove_checkBox.setClickable(true);
+                            tempAbove_checkBox.setEnabled(true);
+                            tempAbove_editText.setEnabled(true);
+                            tempAbove_editText.setClickable(true);
+                        }
+                    }
+                });
+
+
+                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (tempAbove_checkBox.isChecked()) {
+                            if (!tempAbove_editText.getText().toString().equals("")) {
+                                climate.selectedDialogOptions[aboveStringIndex] = true;
+                                climate.dialogOptions[aboveStringIndex] = climate.dialogOptions[aboveStringIndex].substring(0, climate.dialogOptions[aboveStringIndex].lastIndexOf(" ")+1) + tempAbove_editText.getText().toString();
+                                climate.dialogOptions[belowStringIndex] = climate.dialogOptions[belowStringIndex].substring(0, climate.dialogOptions[belowStringIndex].lastIndexOf(" ")+1) + "degrees";
+                                climate.selectedDialogOptions[belowStringIndex] = false;
+                            } else {
+                                climate.selectedDialogOptions[aboveStringIndex] = false;
+                                climate.selectedDialogOptions[belowStringIndex] = false;
+                            }
+                        } else if (tempbelow_checkBox.isChecked()) {
+                            if (!tempBelow_editText.getText().toString().equals("")) {//temp below is checked
+                                climate.selectedDialogOptions[belowStringIndex] = true;
+                                climate.dialogOptions[belowStringIndex] = climate.dialogOptions[belowStringIndex].substring(0, climate.dialogOptions[belowStringIndex].lastIndexOf(" ")+1) + tempBelow_editText.getText().toString();
+                                climate.dialogOptions[aboveStringIndex] = climate.dialogOptions[aboveStringIndex].substring(0, climate.dialogOptions[aboveStringIndex].lastIndexOf(" ")+1) + "degrees";
+                                climate.selectedDialogOptions[aboveStringIndex] = false;
+                            } else {
+                                climate.selectedDialogOptions[belowStringIndex] = false;
+                                climate.selectedDialogOptions[aboveStringIndex] = false;
+                            }
+                        }
+                        if (AllOptionsUnchecked(climate.selectedDialogOptions)) { //if all options are unchecked, unselect the button
+                            toggleButton.setChecked(false);
+                            if (allBtnsUnpressed()) {
+                                makeActionBtnsUnClickable(); //No input is selected - make action buttons un-clickable
+                            }
+                        } else {
+                            toggleButton.setChecked(true); //some triggers are marked
+                        }
+                    }
+                });
+//                builder.setMultiChoiceItems(climate.dialogOptions, climate.selectedDialogOptions, new DialogInterface.OnMultiChoiceClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+//                        final AlertDialog alertDialog = (AlertDialog) dialog;
+//                        final ListView alertDialogList = alertDialog.getListView();
+//
+//                        if (isChecked) {
+//                            toggleButton.setChecked(true); //make the main button checked
+//
+//                            if (climate.dialogOptions[which].contains("above")) {
+//                                int stringIndex = findIndexInArray(Arrays.asList(climate.dialogOptions),"below");
+//                                alertDialogList.getChildAt(stringIndex).setEnabled(false); //UI-wise: disable the other option
+//                                climate.selectedDialogOptions[stringIndex] = false; //Update the other option as unselected so when the dialog will be opened, options will be marked correctly
+//                            } else {
+//                                int stringIndex = findIndexInArray(Arrays.asList(climate.dialogOptions),"above");
+//                                alertDialogList.getChildAt(stringIndex).setEnabled(false);
+//                                climate.selectedDialogOptions[stringIndex] = false;
+//                            }
+//                            //Toast.makeText(Input_actionsActivity.this, "You chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
+//
+//                        } else {
+//                            if (climate.dialogOptions[which].equals("above")) {
+//                                int stringIndex = findIndexInArray(Arrays.asList(climate.dialogOptions),"below");
+//                                alertDialogList.getChildAt(stringIndex).setEnabled(true);
+//                            } else {
+//                                int stringIndex = findIndexInArray(Arrays.asList(climate.dialogOptions),"above");;
+//                                alertDialogList.getChildAt(stringIndex).setEnabled(true);
+//                            }
+//
+//                            if (AllOptionsUnchecked(climate.selectedDialogOptions)) { //if all options are unchecked, unselect the Togglebutton
+//                                toggleButton.setChecked(false);
+//
+//                            }
+//                            //Toast.makeText(Input_actionsActivity.this, "You UN-chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
+//                        }
+//                    }
+//                });
+
+                builder.create().show();
                 break;
 
             case R.id.timeBtn:
@@ -173,7 +320,7 @@ public class Input_actionsActivity extends AppCompatActivity {
         String name = editTextView.getText().toString();
 
         if (name.isEmpty()) {
-            Toast.makeText(getApplicationContext(), "Please enter name for the scenario",
+            Toast.makeText(getApplicationContext(), "Please enter a name for the scenario",
                     Toast.LENGTH_SHORT).show();
         } else {
 
@@ -248,6 +395,15 @@ public class Input_actionsActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    public int findIndexInArray(List<String> arr, String partLine) {
+        for (int i = 0; i < arr.size(); i++) {
+            if (arr.get(i).contains(partLine)) {
+                return i;
+            }
+        }
+        return 0;
     }
 
 
