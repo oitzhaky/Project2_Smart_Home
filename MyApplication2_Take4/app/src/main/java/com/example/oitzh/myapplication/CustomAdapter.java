@@ -65,7 +65,7 @@ public class CustomAdapter extends BaseAdapter {
             tvName.setText(m.getScenarioName());
 
             //Set pictures
-            //Iterate over Input buttons
+            //Iterate over Input buttons and add input icons as selected in scenario
             int counter=0;
             for (IA toggleButton : m.getToggledButtonsArray()) {
                 switch (toggleButton.getToggleButtonID()) {
@@ -73,6 +73,12 @@ public class CustomAdapter extends BaseAdapter {
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_map_marker);
                         imageViewArray.get(counter).setPadding(50,10,0,0);
                         counter++;
+                        break;
+                    case (R.id.climateBtn):
+                        imageViewArray.get(counter).setImageResource(R.drawable.ic_climate_control);
+                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        counter++;
+                        break;
                 }
             }
 
@@ -90,10 +96,6 @@ public class CustomAdapter extends BaseAdapter {
                 imageViewArray.get(counter).setVisibility(View.GONE);
                 counter++;
             }
-
-
-
-
 
         // click listener for remove button
         imgRemove.setOnClickListener(new View.OnClickListener() {
