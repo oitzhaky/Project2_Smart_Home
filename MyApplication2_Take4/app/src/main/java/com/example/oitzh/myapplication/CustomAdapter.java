@@ -79,6 +79,16 @@ public class CustomAdapter extends BaseAdapter {
                         imageViewArray.get(counter).setPadding(50,10,0,0);
                         counter++;
                         break;
+                    case (R.id.timeBtn):
+                        imageViewArray.get(counter).setImageResource(R.drawable.ic_timer);
+                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        counter++;
+                        break;
+                    case (R.id.motionBtn):
+                        imageViewArray.get(counter).setImageResource(R.drawable.ic_human_handsup);
+                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        counter++;
+                        break;
                 }
             }
 
@@ -86,10 +96,36 @@ public class CustomAdapter extends BaseAdapter {
             imageViewArray.get(counter).setPadding(50,10,0,0);
             counter++;
 
-            //TODO: Iterate over outputs
-            imageViewArray.get(counter).setImageResource(R.drawable.ic_television_classic);
-            imageViewArray.get(counter).setPadding(50,10,0,0);
-            counter++;
+
+            for (IA toggleButton : m.getToggledButtonsArray()) {
+                switch (toggleButton.getToggleButtonID()) {
+                    case (R.id.lightsBtn):
+                        imageViewArray.get(counter).setImageResource(R.drawable.ic_lightbulb_on_outline);
+                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        counter++;
+                        break;
+                    case (R.id.acBtn):
+                        imageViewArray.get(counter).setImageResource(R.drawable.ic_oil_temperature);
+                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        counter++;
+                        break;
+                    case (R.id.tvBtn):
+                        imageViewArray.get(counter).setImageResource(R.drawable.ic_television_classic);
+                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        counter++;
+                        break;
+                    case (R.id.boilerBtn):
+                        imageViewArray.get(counter).setImageResource(R.drawable.ic_hot_tub);
+                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        counter++;
+                        break;
+                    case (R.id.securityBtn):
+                        imageViewArray.get(counter).setImageResource(R.drawable.ic_security_home);
+                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        counter++;
+                        break;
+                }
+            }
 
             //Remove unused imageView views
             while(counter<8){

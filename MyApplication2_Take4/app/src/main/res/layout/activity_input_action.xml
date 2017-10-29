@@ -72,7 +72,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/inputs"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
                 app:layout_constraintVertical_bias="1.0" />
 
         </LinearLayout>
@@ -159,6 +159,7 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp">
 
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -186,6 +187,16 @@
                     android:tag="AC"
                     android:textOff="AC"
                     android:textOn="AC" />
+
+                <ToggleButton
+                    android:id="@+id/securityBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_security_home"
+                    android:onClick="onClickFunc"
+                    android:tag="Security"
+                    android:textOff="Security"
+                    android:textOn="Security" />
             </LinearLayout>
 
             <LinearLayout
@@ -205,6 +216,16 @@
                     android:tag="TV"
                     android:textOff="TV"
                     android:textOn="TV" />
+
+                <ToggleButton
+                    android:id="@+id/boilerBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_hot_tub"
+                    android:onClick="onClickFunc"
+                    android:tag="Boiler"
+                    android:textOff="Boiler"
+                    android:textOn="Boiler" />
             </LinearLayout>
 
             <LinearLayout
@@ -229,10 +250,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/actions"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
             </LinearLayout>
 
         </LinearLayout>
+
 
     </LinearLayout>
 
@@ -252,7 +274,7 @@
             android:layout_marginBottom="8dp"
             android:elevation="1dp"
             android:onClick="submitData"
-            android:text="Submit"
+            android:text="Create Scenario"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent" />

@@ -12,6 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback;
@@ -21,25 +22,17 @@ import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIotClient;
-import com.amazonaws.services.iot.model.AttachPrincipalPolicyRequest;
-import com.amazonaws.services.iot.model.CreateKeysAndCertificateRequest;
-import com.amazonaws.services.iot.model.CreateKeysAndCertificateResult;
+import com.amazonaws.services.iot.model.*;
+import com.amazonaws.services.iot.model.Action;
 
 import java.security.KeyStore;
+import java.util.Arrays;
 import java.util.UUID;
 
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    final int MY_CHILD_ACTIVITY = 1;
-    final int MY_EDIT_CHILD_ACTIVITY = 2;
-    ListView listView;
-    EditText editTextView;
-    ArrayList<Scenario> itemScenarioList;
-    CustomAdapter customAdapter;
-
     static final String LOG_TAG = MainActivity.class.getCanonicalName();
-
     //region AWS Variables
     // IoT endpoint
     // AWS Iot CLI describe-endpoint call returns: XXXXXXXXXX.iot.<region>.amazonaws.com
@@ -55,11 +48,15 @@ public class MainActivity extends AppCompatActivity {
     private static final String KEYSTORE_NAME = "iot_keystore";
     // Password for the private key in the KeyStore
     private static final String KEYSTORE_PASSWORD = "password";
-
     // --- Constants to modify per your configuration ---
     // Certificate and key aliases in the KeyStore
     private static final String CERTIFICATE_ID = "default";
-
+    final int MY_CHILD_ACTIVITY = 1;
+    final int MY_EDIT_CHILD_ACTIVITY = 2;
+    ListView listView;
+    EditText editTextView;
+    ArrayList<Scenario> itemScenarioList;
+    CustomAdapter customAdapter;
     EditText txtSubcribe;
     EditText txtTopic;
     EditText txtMessage;
@@ -99,6 +96,53 @@ public class MainActivity extends AppCompatActivity {
 //            editTextView.setText("");
 //        }
 //    }
+    //region AWS CONNECT Listener Code
+    View.OnClickListener connectClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+
+            Log.d(LOG_TAG, "clientId = " + clientId);
+
+            try {
+                mqttManager.connect(clientKeyStore, new AWSIotMqttClientStatusCallback() {
+                    @Override
+                    public void onStatusChanged(final AWSIotMqttClientStatus status,
+                                                final Throwable throwable) {
+                        Log.d(LOG_TAG, "Status = " + String.valueOf(status));
+
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (status == AWSIotMqttClientStatus.Connecting) {
+                                    tvStatus.setText("Connecting...");
+
+                                } else if (status == AWSIotMqttClientStatus.Connected) {
+                                    tvStatus.setText("Connected");
+
+                                } else if (status == AWSIotMqttClientStatus.Reconnecting) {
+                                    if (throwable != null) {
+                                        Log.e(LOG_TAG, "Connection error.", throwable);
+                                    }
+                                    tvStatus.setText("Reconnecting");
+                                } else if (status == AWSIotMqttClientStatus.ConnectionLost) {
+                                    if (throwable != null) {
+                                        Log.e(LOG_TAG, "Connection error.", throwable);
+                                    }
+                                    tvStatus.setText("Disconnected");
+                                } else {
+                                    tvStatus.setText("Disconnected");
+
+                                }
+                            }
+                        });
+                    }
+                });
+            } catch (final Exception e) {
+                Log.e(LOG_TAG, "Connection error.", e);
+                tvStatus.setText("Error! " + e.getMessage());
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -287,79 +331,57 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-    //region AWS CONNECT Listener Code
-    View.OnClickListener connectClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-
-            Log.d(LOG_TAG, "clientId = " + clientId);
-
-            try {
-                mqttManager.connect(clientKeyStore, new AWSIotMqttClientStatusCallback() {
-                    @Override
-                    public void onStatusChanged(final AWSIotMqttClientStatus status,
-                                                final Throwable throwable) {
-                        Log.d(LOG_TAG, "Status = " + String.valueOf(status));
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (status == AWSIotMqttClientStatus.Connecting) {
-                                    tvStatus.setText("Connecting...");
-
-                                } else if (status == AWSIotMqttClientStatus.Connected) {
-                                    tvStatus.setText("Connected");
-
-                                } else if (status == AWSIotMqttClientStatus.Reconnecting) {
-                                    if (throwable != null) {
-                                        Log.e(LOG_TAG, "Connection error.", throwable);
-                                    }
-                                    tvStatus.setText("Reconnecting");
-                                } else if (status == AWSIotMqttClientStatus.ConnectionLost) {
-                                    if (throwable != null) {
-                                        Log.e(LOG_TAG, "Connection error.", throwable);
-                                    }
-                                    tvStatus.setText("Disconnected");
-                                } else {
-                                    tvStatus.setText("Disconnected");
-
-                                }
-                            }
-                        });
-                    }
-                });
-            } catch (final Exception e) {
-                Log.e(LOG_TAG, "Connection error.", e);
-                tvStatus.setText("Error! " + e.getMessage());
-            }
-        }
-    };
     //endregion
 
     //region Publish AWS Func
-public void publishScenario(Scenario publishedScenario){
+    public void publishScenario(Scenario publishedScenario) {
 
-            final String topic = "AWS/Scenario";
-            final String msg = publishedScenario.getScenarioName();
+        //prepare new AWS rule
 
-            try {
-                mqttManager.publishString(msg, topic, AWSIotMqttQos.QOS0);
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Publish error.", e);
-            }
 
+//        RepublishAction republishAction = new RepublishAction();
+//        republishAction.setTopic("AWS/Scenario5");
+//        republishAction.setRoleArn("arn:aws:iam::896223013790:role/service-role/IoTRole");
+//
+//        com.amazonaws.services.iot.model.Action action = new Action();
+//        action.setRepublish(republishAction);
+//
+//        TopicRulePayload topicRulePayload = new TopicRulePayload();
+//        topicRulePayload.setRuleDisabled(false);
+//        topicRulePayload.setActions(Arrays.asList(action));
+//        topicRulePayload.setSql("SELECT * FROM '$AWS/Scenario'");
+//        topicRulePayload.setDescription("A test rule");
+//
+//        CreateTopicRuleRequest createTopicRuleRequest = new CreateTopicRuleRequest();
+//        createTopicRuleRequest.setRuleName("republish5");
+//        createTopicRuleRequest.setTopicRulePayload(topicRulePayload);
+//
+//
+//            mIotAndroidClient.createTopicRule(createTopicRuleRequest);
+
+
+
+
+        final String topic = "AWS/Scenario";
+        final String msg = publishedScenario.getScenarioName();
+
+        try {
+            mqttManager.publishString(msg, topic, AWSIotMqttQos.QOS0);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Publish error.", e);
         }
-public void publishRemovedScenario(Scenario removedScenario){
-    final String topic = "AWS/Scenario";
-    final String msg = "REMOVED!" + removedScenario.getScenarioName();
-
-    try {
-        mqttManager.publishString(msg, topic, AWSIotMqttQos.QOS0);
-    } catch (Exception e) {
-        Log.e(LOG_TAG, "Publish error.", e);
     }
-}
+
+    public void publishRemovedScenario(Scenario removedScenario) {
+        final String topic = "AWS/Scenario";
+        final String msg = "REMOVED!" + removedScenario.getScenarioName();
+
+        try {
+            mqttManager.publishString(msg, topic, AWSIotMqttQos.QOS0);
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Publish error.", e);
+        }
+    }
     //endregion
 }
 
