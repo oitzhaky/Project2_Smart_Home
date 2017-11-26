@@ -36,4 +36,10 @@
     <string name="button_connect">Connect to AWS</string>
     <string name="txt_view">Connection Status</string>
 
+    <string name="AC_topic">AWS/AC</string>
+    <string name="tv_topic">AWS/TV</string>
+    <string name="Lights_topic">AWS/Lights</string>
+    <string name="Boiler_topic">AWS/Boiler</string>
+    <string name="Security_topic">AWS/Security</string>
+
 </resources>

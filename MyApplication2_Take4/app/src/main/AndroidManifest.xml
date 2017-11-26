@@ -3,6 +3,7 @@
     package="com.example.oitzh.myapplication">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 
     <application
         android:allowBackup="true"
@@ -20,6 +21,13 @@
         <activity android:name=".Input_actionsActivity"
             android:parentActivityName="com.example.oitzh.myapplication.MainActivity">
         </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDrkVUVMT5Rl8xwHVyxpjQnuSQNICs-GNc" />
+
     </application>
+
+
 
 </manifest> <!-- android:theme="@style/AppTheme" -->

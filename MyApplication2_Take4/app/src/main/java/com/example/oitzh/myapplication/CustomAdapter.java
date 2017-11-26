@@ -54,10 +54,10 @@ public class CustomAdapter extends BaseAdapter {
             final ImageView imgEdit = (ImageView) convertView.findViewById(R.id.imgEdit);
             final Scenario m = itemModelList.get(position);
 
-            int [] ids = new int [] {R.id.image1, R.id.image2, R.id.image3, R.id.image4,R.id.image5, R.id.image6,R.id.image7, R.id.image8,};
+            int[] ids = new int[]{R.id.image1, R.id.image2, R.id.image3, R.id.image4, R.id.image5, R.id.image6, R.id.image7, R.id.image8,};
             List<ImageView> imageViewArray = new ArrayList<>();
 
-            for(int id: ids) {
+            for (int id : ids) {
                 imageViewArray.add((ImageView) convertView.findViewById(id));
             }
 
@@ -65,95 +65,95 @@ public class CustomAdapter extends BaseAdapter {
             tvName.setText(m.getScenarioName());
 
             //Set pictures
-            //Iterate over Input buttons and add input icons as selected in scenario
-            int counter=0;
-            for (IA toggleButton : m.getToggledButtonsArray()) {
+            //Iterate over ScenarioButton buttons and add input icons as selected in scenario
+            int counter = 0;
+            for (ScenarioButton toggleButton : m.getInputToggledButtonsArray()) {
                 switch (toggleButton.getToggleButtonID()) {
                     case (R.id.gpsBtn):
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_map_marker);
-                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        imageViewArray.get(counter).setPadding(50, 10, 0, 0);
                         counter++;
                         break;
                     case (R.id.climateBtn):
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_climate_control);
-                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        imageViewArray.get(counter).setPadding(50, 10, 0, 0);
                         counter++;
                         break;
                     case (R.id.timeBtn):
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_timer);
-                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        imageViewArray.get(counter).setPadding(50, 10, 0, 0);
                         counter++;
                         break;
                     case (R.id.motionBtn):
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_human_handsup);
-                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        imageViewArray.get(counter).setPadding(50, 10, 0, 0);
                         counter++;
                         break;
                 }
             }
 
             imageViewArray.get(counter).setImageResource(R.drawable.ic_arrow_right_thick);
-            imageViewArray.get(counter).setPadding(50,10,0,0);
+            imageViewArray.get(counter).setPadding(50, 10, 0, 0);
             counter++;
 
 
-            for (IA toggleButton : m.getToggledButtonsArray()) {
+            for (ScenarioButton toggleButton : m.getActionToggledButtonsArray()) {
                 switch (toggleButton.getToggleButtonID()) {
                     case (R.id.lightsBtn):
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_lightbulb_on_outline);
-                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        imageViewArray.get(counter).setPadding(50, 10, 0, 0);
                         counter++;
                         break;
                     case (R.id.acBtn):
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_oil_temperature);
-                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        imageViewArray.get(counter).setPadding(50, 10, 0, 0);
                         counter++;
                         break;
                     case (R.id.tvBtn):
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_television_classic);
-                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        imageViewArray.get(counter).setPadding(50, 10, 0, 0);
                         counter++;
                         break;
                     case (R.id.boilerBtn):
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_hot_tub);
-                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        imageViewArray.get(counter).setPadding(50, 10, 0, 0);
                         counter++;
                         break;
                     case (R.id.securityBtn):
                         imageViewArray.get(counter).setImageResource(R.drawable.ic_security_home);
-                        imageViewArray.get(counter).setPadding(50,10,0,0);
+                        imageViewArray.get(counter).setPadding(50, 10, 0, 0);
                         counter++;
                         break;
                 }
             }
 
             //Remove unused imageView views
-            while(counter<8){
+            while (counter < 8) {
                 imageViewArray.get(counter).setVisibility(View.GONE);
                 counter++;
             }
 
-        // click listener for remove button
-        imgRemove.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Scenario removedScenario = itemModelList.remove(position);
-                mainActivity.publishRemovedScenario(removedScenario);
-                notifyDataSetChanged();
-            }
-        });
-        // click listener for edit button
-        imgEdit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Scenario editScenario = itemModelList.remove(position);
-                //itemModelList.add(editScenario);
-                mainActivity.editActivity(imgEdit, editScenario);
-                //Toast.makeText(context, String.valueOf(position) , Toast.LENGTH_SHORT).show();
-                notifyDataSetChanged();
-            }
-        });
-    }
+            // click listener for remove button
+            imgRemove.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Scenario removedScenario = itemModelList.remove(position);
+                    mainActivity.publishRemovedScenario(removedScenario);
+                    notifyDataSetChanged();
+                }
+            });
+            // click listener for edit button
+            imgEdit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Scenario editScenario = itemModelList.remove(position);
+                    //itemModelList.add(editScenario);
+                    mainActivity.editActivity(imgEdit, editScenario);
+                    //Toast.makeText(context, String.valueOf(position) , Toast.LENGTH_SHORT).show();
+                    notifyDataSetChanged();
+                }
+            });
+        }
         return convertView;
-}
+    }
 }

@@ -22,18 +22,9 @@
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
         android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-
-            app:srcCompat="@drawable/ic_numeric_1_box_outline" />
 
         <EditText
             android:id="@+id/editTextView"
@@ -49,27 +40,26 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:gravity="center"
-        android:orientation="vertical"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:gravity="center"
-            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:orientation="vertical"
             android:paddingLeft="16dp"
             android:paddingRight="16dp">
 
             <ImageView
-                android:id="@+id/imageView2"
+                android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingRight="8dp"
-                app:srcCompat="@drawable/ic_numeric_2_box_outline" />
+                app:srcCompat="@drawable/ic_numeric_1_box_outline" />
 
             <TextView
                 android:id="@+id/textInputs"
@@ -84,12 +74,12 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
             android:gravity="center"
-            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
             android:paddingBottom="8dp"
-            android:paddingLeft="0dp"
-            android:paddingRight="0dp">
+            android:paddingRight="8dp">
 
             <ToggleButton
                 android:id="@+id/gpsBtn"
@@ -110,6 +100,17 @@
                 android:tag="Climate"
                 android:textOff="Climate"
                 android:textOn="Climate" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            android:paddingLeft="8dp"
+            android:paddingBottom="8dp"
+            android:paddingRight="16dp">
 
             <ToggleButton
                 android:id="@+id/timeBtn"
@@ -132,53 +133,25 @@
                 android:textOn="Motion" />
         </LinearLayout>
 
-
     </LinearLayout>
-
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:gravity="center"
-        android:orientation="vertical"
-        android:paddingBottom="10dp"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:orientation="horizontal"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp">
+
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingBottom="5dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp">
-
-            <ImageView
-                android:id="@+id/imageView3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingRight="8dp"
-                app:srcCompat="@drawable/ic_numeric_3_box_outline" />
-
-            <TextView
-                android:id="@+id/textActions"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/actions"
-                android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:paddingLeft="8dp"
-            android:paddingRight="8dp">
 
 
             <LinearLayout
@@ -186,79 +159,97 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:orientation="vertical"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp">
+
+                <ToggleButton
+                    android:id="@+id/lightsBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_lightbulb_on_outline"
+                    android:onClick="onClickFunc"
+                    android:tag="Lights"
+                    android:textOff="Lights"
+                    android:textOn="Lights" />
+
+                <ToggleButton
+                    android:id="@+id/acBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_oil_temperature"
+                    android:onClick="onClickFunc"
+                    android:tag="AC"
+                    android:textOff="AC"
+                    android:textOn="AC" />
+
+                <ToggleButton
+                    android:id="@+id/securityBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_security_home"
+                    android:onClick="onClickFunc"
+                    android:tag="Security"
+                    android:textOff="Security"
+                    android:textOn="Security" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp">
+
+                <ToggleButton
+                    android:id="@+id/tvBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_television_classic"
+                    android:onClick="onClickFunc"
+                    android:tag="TV"
+                    android:textOff="TV"
+                    android:textOn="TV" />
+
+                <ToggleButton
+                    android:id="@+id/boilerBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_hot_tub"
+                    android:onClick="onClickFunc"
+                    android:tag="Boiler"
+                    android:textOff="Boiler"
+                    android:textOn="Boiler" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:gravity="center"
+                android:orientation="vertical"
                 android:paddingLeft="16dp"
+                android:paddingBottom="40dp"
                 android:paddingRight="16dp">
 
+                <ImageView
+                    android:id="@+id/imageView2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingRight="8dp"
+                    app:srcCompat="@drawable/ic_numeric_2_box_outline" />
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/textActions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingLeft="3dp"
-                    android:paddingRight="3dp">
-
-                    <ToggleButton
-                        android:id="@+id/lightsBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawableBottom="@drawable/ic_lightbulb_on_outline"
-                        android:onClick="onClickFunc"
-                        android:tag="Lights"
-                        android:textOff="Lights"
-                        android:textOn="Lights" />
-
-                    <ToggleButton
-                        android:id="@+id/acBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawableBottom="@drawable/ic_oil_temperature"
-                        android:onClick="onClickFunc"
-                        android:tag="AC"
-                        android:textOff="AC"
-                        android:textOn="AC" />
-
-                    <ToggleButton
-                        android:id="@+id/securityBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawableBottom="@drawable/ic_security_home"
-                        android:onClick="onClickFunc"
-                        android:tag="Security"
-                        android:textOff="Security"
-                        android:textOn="Security" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="horizontal"
-                    android:paddingLeft="3dp"
-                    android:paddingRight="3dp">
-
-                    <ToggleButton
-                        android:id="@+id/tvBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawableBottom="@drawable/ic_television_classic"
-                        android:onClick="onClickFunc"
-                        android:tag="TV"
-                        android:textOff="TV"
-                        android:textOn="TV" />
-
-                    <ToggleButton
-                        android:id="@+id/boilerBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawableBottom="@drawable/ic_hot_tub"
-                        android:onClick="onClickFunc"
-                        android:tag="Boiler"
-                        android:textOff="Boiler"
-                        android:textOn="Boiler" />
-                </LinearLayout>
+                    android:text="@string/actions"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
             </LinearLayout>
+
         </LinearLayout>
+
+
     </LinearLayout>
 
     <LinearLayout

@@ -1,7 +1,9 @@
 package com.example.oitzh.myapplication;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,28 +12,31 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttLastWillAndTestament;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttManager;
+import com.amazonaws.mobileconnectors.iot.AWSIotMqttNewMessageCallback;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIotClient;
 import com.amazonaws.services.iot.model.*;
-import com.amazonaws.services.iot.model.Action;
-
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlacePicker;
+import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
-import java.util.Arrays;
 import java.util.UUID;
-
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+
     static final String LOG_TAG = MainActivity.class.getCanonicalName();
     //region AWS Variables
     // IoT endpoint
@@ -51,8 +56,22 @@ public class MainActivity extends AppCompatActivity {
     // --- Constants to modify per your configuration ---
     // Certificate and key aliases in the KeyStore
     private static final String CERTIFICATE_ID = "default";
+    final String AC_TOPIC = "AWS/AC";
+    final String TV_TOPIC = "AWS/TV";
+    final String LIGHTS_TOPIC = "AWS/LIGHTS";
+    final String BOILER_TOPIC = "AWS/BOILER";
+    final String SECURITY_TOPIC = "AWS/SECURITY";
     final int MY_CHILD_ACTIVITY = 1;
-    final int MY_EDIT_CHILD_ACTIVITY = 2;
+    final int PLACE_PICKER_REQUEST = 2;
+    AWSIotClient mIotAndroidClient;
+    AWSIotMqttManager mqttManager;
+    String clientId;
+    String keystorePath;
+    String keystoreName;
+    String keystorePassword;
+    KeyStore clientKeyStore = null;
+    String certificateId;
+    CognitoCachingCredentialsProvider credentialsProvider;
     ListView listView;
     EditText editTextView;
     ArrayList<Scenario> itemScenarioList;
@@ -60,42 +79,13 @@ public class MainActivity extends AppCompatActivity {
     EditText txtSubcribe;
     EditText txtTopic;
     EditText txtMessage;
-
     TextView tvLastMessage;
     TextView tvClientId;
     TextView tvStatus;
-
     Button btnConnect;
     Button btnSubscribe;
     Button btnPublish;
     Button btnDisconnect;
-
-    AWSIotClient mIotAndroidClient;
-    AWSIotMqttManager mqttManager;
-    String clientId;
-    String keystorePath;
-    String keystoreName;
-    String keystorePassword;
-
-    KeyStore clientKeyStore = null;
-    String certificateId;
-
-    CognitoCachingCredentialsProvider credentialsProvider;
-    //endregion
-
-//    @SuppressLint("NewApi")
-//    public void addValue(View v) {
-//        String name = editTextView.getText().toString();
-//        if (name.isEmpty()) {
-//            Toast.makeText(getApplicationContext(), "Plz enter Values",
-//                    Toast.LENGTH_SHORT).show();
-//        } else {
-//            Scenario md = new Scenario(name);
-//            itemScenarioList.add(md);
-//            customAdapter.notifyDataSetChanged();
-//            editTextView.setText("");
-//        }
-//    }
     //region AWS CONNECT Listener Code
     View.OnClickListener connectClick = new View.OnClickListener() {
         @Override
@@ -144,10 +134,15 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+    //endregion
+    private FusedLocationProviderClient mFusedLocationClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         listView = (ListView) findViewById(R.id.listview);
         editTextView = (EditText) findViewById(R.id.editTextView);
         itemScenarioList = new ArrayList<Scenario>();
@@ -155,9 +150,18 @@ public class MainActivity extends AppCompatActivity {
         listView.setEmptyView(findViewById(android.R.id.empty));
         listView.setAdapter(customAdapter);
 
+
+        LocationMock locationMock = null;
+        try {
+            locationMock = new LocationMock(mFusedLocationClient, this);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        }
+        locationMock.getLastLocation(this);
+
         //region AWS Code
-        //super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_main);
 
         //txtSubcribe = (EditText) findViewById(R.id.editTextSubscribe);
         //txtTopic = (EditText) findViewById(R.id.editTextPublish);
@@ -167,9 +171,9 @@ public class MainActivity extends AppCompatActivity {
         //tvClientId = (TextView) findViewById(R.id.tvClientId);
         tvStatus = (TextView) findViewById(R.id.tvStatus);
 
-        btnConnect = (Button) findViewById(R.id.btnConnect);
-        btnConnect.setOnClickListener(connectClick);
-        btnConnect.setEnabled(false);
+        // btnConnect = (Button) findViewById(R.id.btnConnect);
+        //btnConnect.setOnClickListener(connectClick);
+        //btnConnect.setEnabled(false);
 
         // btnSubscribe = (Button) findViewById(R.id.btnSubscribe);
         //btnSubscribe.setOnClickListener(subscribeClick);
@@ -227,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
                     // load keystore from file into memory to pass on connection
                     clientKeyStore = AWSIotKeystoreHelper.getIotKeystore(certificateId,
                             keystorePath, keystoreName, keystorePassword);
-                    btnConnect.setEnabled(true);
+                    //btnConnect.setEnabled(true);
                 } else {
                     Log.i(LOG_TAG, "Key/cert " + certificateId + " not found in keystore.");
                 }
@@ -286,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                btnConnect.setEnabled(true);
+                                //btnConnect.setEnabled(true);
                             }
                         });
                     } catch (Exception e) {
@@ -298,7 +302,100 @@ public class MainActivity extends AppCompatActivity {
             }).start();
         }
         //endregion
+
+        try {
+            mqttManager.connect(clientKeyStore, new AWSIotMqttClientStatusCallback() {
+                @Override
+                public void onStatusChanged(final AWSIotMqttClientStatus status,
+                                            final Throwable throwable) {
+                    Log.d(LOG_TAG, "Status = " + String.valueOf(status));
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (status == AWSIotMqttClientStatus.Connecting) {
+                                tvStatus.setText("Connecting...");
+
+                            } else if (status == AWSIotMqttClientStatus.Connected) {
+                                tvStatus.setText("Connected");
+
+                            } else if (status == AWSIotMqttClientStatus.Reconnecting) {
+                                if (throwable != null) {
+                                    Log.e(LOG_TAG, "Connection error.", throwable);
+                                }
+                                tvStatus.setText("Reconnecting");
+                            } else if (status == AWSIotMqttClientStatus.ConnectionLost) {
+                                if (throwable != null) {
+                                    Log.e(LOG_TAG, "Connection error.", throwable);
+                                }
+                                tvStatus.setText("Disconnected");
+                            } else {
+                                tvStatus.setText("Disconnected");
+
+                            }
+                        }
+                    });
+                }
+            });
+        } catch (final Exception e) {
+            Log.e(LOG_TAG, "Connection error.", e);
+            tvStatus.setText("Error! " + e.getMessage());
+        }
+
+        AWSIotMqttNewMessageCallback awsIotMqttNewMessageCallback = new AWSIotMqttNewMessageCallback() {
+            @Override
+            public void onMessageArrived(final String topic, final byte[] data) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            String message = new String(data, "UTF-8");
+                            Log.d(LOG_TAG, "Message arrived:");
+                            Log.d(LOG_TAG, "   Topic: " + topic);
+                            Log.d(LOG_TAG, " Message: " + message);
+
+                            // 1. Instantiate an AlertDialog.Builder with its constructor
+                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                            // 2. Chain together various setter methods to set the dialog characteristics
+                            builder.setMessage("Topic: " + topic + "\n" + "Message: " + message)
+                                    .setTitle("Message arrived:");
+
+                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // User clicked OK button
+                                }
+                            });
+
+                            builder.setIcon(R.drawable.ic_warning_black_24px);
+
+                            // 3. Get the AlertDialog from create()
+                            AlertDialog dialog = builder.create();
+                            dialog.show();
+                        } catch (UnsupportedEncodingException e) {
+                            Log.e(LOG_TAG, "Message encoding error.", e);
+                        }
+                    }
+                });
+            }
+        };
+
+        //new Thread() {
+        //    @Override
+        //   public void run() {
+        try {
+            Thread.sleep(1000);
+            //mqttManager.subscribeToTopic(AC_TOPIC, AWSIotMqttQos.QOS0, awsIotMqttNewMessageCallback);
+
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Subscription error.", e);
+        }
+        // }
+        //};
+
     }
+
+
 
     //Call an activity for creating a scenario
     public void createActivity(View v) {
@@ -314,6 +411,23 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(i, MY_CHILD_ACTIVITY);
     }
 
+    public void createPlacePickerActivity(View v) throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
+
+        try {
+            Intent intent =
+                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                            .build(this);
+            startActivityForResult(intent, PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException e) {
+            // TODO: Handle the error.
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // TODO: Handle the error.
+        }
+
+       // PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+       // startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -321,6 +435,7 @@ public class MainActivity extends AppCompatActivity {
             case (MY_CHILD_ACTIVITY): {
                 if (resultCode == Activity.RESULT_OK) {
                     Scenario scenarioCreated = (Scenario) data.getSerializableExtra("result");
+                    process(scenarioCreated);
                     publishScenario(scenarioCreated); //publish to aws server!
                     itemScenarioList.add(new Scenario(scenarioCreated));
                     customAdapter.notifyDataSetChanged();
@@ -329,6 +444,36 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             }
+            case (PLACE_PICKER_REQUEST): {
+                if (resultCode == RESULT_OK) {
+                    Place place = PlacePicker.getPlace(data, this);
+                    LocationMock.home = place;
+                }
+            }
+        }
+    }
+
+    private void process(Scenario scenarioCreated) {
+        ScenarioInput scenarioInput = scenarioCreated.scenarioInput;
+        for (ScenarioInput.Name name : scenarioInput.names) {
+            String info;
+            switch (name) {
+                case Location:
+                    info = scenarioInput.trigger.location.toString().replace("_", " ");
+                    break;
+                case Time:
+                    String[] string = scenarioInput.trigger.time.toString().replace("_", " ").split(" ");
+                    info = string[0] + String.valueOf(scenarioInput.trigger.climate.first)
+                            + ((string.length > 2) ? String.valueOf(scenarioInput.trigger.time.second) : "");
+                    break;
+                case Climate:
+                    info = scenarioInput.trigger.climate.toString().replace("_", " ").split(" ")[0] + String.valueOf(scenarioInput.trigger.climate.first);
+                    break;
+                case Motion:
+                    scenarioInput.trigger.motion.toString().replace("_", " ");
+                    break;
+            }
+
         }
     }
     //endregion
@@ -337,11 +482,9 @@ public class MainActivity extends AppCompatActivity {
     public void publishScenario(Scenario publishedScenario) {
 
         //prepare new AWS rule
-
-
 //        RepublishAction republishAction = new RepublishAction();
-//        republishAction.setTopic("AWS/Scenario5");
-//        republishAction.setRoleArn("arn:aws:iam::896223013790:role/service-role/IoTRole");
+//        republishAction.setTopic("AWS/Scenario5"); //topic to which we republish
+//        republishAction.setRoleArn("arn:aws:iam::896223013790:role/service-role/IoTRole"); //Role that has iot-publish permissions
 //
 //        com.amazonaws.services.iot.model.Action action = new Action();
 //        action.setRepublish(republishAction);
@@ -349,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
 //        TopicRulePayload topicRulePayload = new TopicRulePayload();
 //        topicRulePayload.setRuleDisabled(false);
 //        topicRulePayload.setActions(Arrays.asList(action));
-//        topicRulePayload.setSql("SELECT * FROM '$AWS/Scenario'");
+//        topicRulePayload.setSql("SELECT * FROM 'AWS/Scenario'");
 //        topicRulePayload.setDescription("A test rule");
 //
 //        CreateTopicRuleRequest createTopicRuleRequest = new CreateTopicRuleRequest();
@@ -357,9 +500,7 @@ public class MainActivity extends AppCompatActivity {
 //        createTopicRuleRequest.setTopicRulePayload(topicRulePayload);
 //
 //
-//            mIotAndroidClient.createTopicRule(createTopicRuleRequest);
-
-
+//        mIotAndroidClient.createTopicRule(createTopicRuleRequest);
 
 
         final String topic = "AWS/Scenario";
@@ -370,6 +511,7 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(LOG_TAG, "Publish error.", e);
         }
+
     }
 
     public void publishRemovedScenario(Scenario removedScenario) {

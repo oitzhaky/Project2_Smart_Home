@@ -21,9 +21,9 @@ public class Event implements Parcelable {
             return new Event[size];
         }
     };
-    private List<IA> toggledButtons = new ArrayList<>();
+    private List<ScenarioButton> toggledButtons = new ArrayList<>();
 
-    public Event(List<IA> list) {
+    public Event(List<ScenarioButton> list) {
         toggledButtons = list;
     }
 
@@ -46,7 +46,7 @@ public class Event implements Parcelable {
         String msg = "";
         for (IA ia : toggledButtons) {
             msg += ia.getToggleButtonID().getTag() + ":"; //Get imageButton's tag attribute
-            //msg += getResources().getResourceName(imageButton.getId()).split("/")[1] + ":"; //"Input: ";
+            //msg += getResources().getResourceName(imageButton.getId()).split("/")[1] + ":"; //"ScenarioButton: ";
             for (int index = 0; index < ia.getSelectedDialogOptions().length; index++) {
                 if (ia.getSelectedDialogOptions()[index] == true) {
                     msg += ia.getDialogOptions()[index] + "  ";

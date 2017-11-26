@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by oitzh on 21/09/2017.
  */
 
-public class Input implements IA, Serializable {
+public class ScenarioButton implements Serializable {
 
     public int toggleButtonID;
     public String[] dialogOptions;
@@ -15,14 +15,14 @@ public class Input implements IA, Serializable {
 
     public String tagName;
 
-    public Input(int toggleButtonID, String[] dialogOptions, boolean[] selectedDialogOptions, String tagName) {
+    public ScenarioButton(int toggleButtonID, String[] dialogOptions, boolean[] selectedDialogOptions, String tagName) {
         this.toggleButtonID = toggleButtonID;
         this.dialogOptions = dialogOptions;
         this.selectedDialogOptions = selectedDialogOptions;
         this.tagName = tagName;
     }
 
-    public Input(int toggleButtonID){
+    public ScenarioButton(int toggleButtonID){
         this.toggleButtonID = toggleButtonID;
         this.dialogOptions = null;
         this.selectedDialogOptions = null;
@@ -32,12 +32,10 @@ public class Input implements IA, Serializable {
         return this.toggleButtonID;
     }
 
-    @Override
     public String[] getDialogOptions() {
         return this.dialogOptions;
     }
 
-    @Override
     public boolean[] getSelectedDialogOptions() {
         return this.selectedDialogOptions;
     }

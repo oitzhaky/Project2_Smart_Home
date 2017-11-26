@@ -21,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="degrees"
+            android:hint="Degrees"
             android:inputType="numberDecimal"
             android:paddingLeft="10dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
@@ -44,53 +44,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="degrees"
+            android:hint="Degrees"
             android:inputType="numberDecimal"
             android:paddingLeft="10dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
         </LinearLayout>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-    <CheckBox
-        android:id="@+id/checkBox3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="When Temp is above" />
-
-        <EditText
-            android:id="@+id/editText3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:paddingLeft="10dp"
-            android:hint="degrees"
-            android:inputType="numberDecimal"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="and below"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            />
-
-        <EditText
-            android:id="@+id/editText4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:hint="degrees"
-            android:paddingLeft="10dp"
-            android:inputType="numberDecimal"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
-
-        </LinearLayout>
 </LinearLayout>
