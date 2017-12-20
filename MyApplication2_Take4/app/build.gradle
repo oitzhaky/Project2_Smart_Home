@@ -50,5 +50,6 @@ dependencies {
     compile 'com.amazonaws:aws-android-sdk-iot:2.2.+'
     compile 'com.google.android.gms:play-services-location:11.+'
     compile 'com.google.android.gms:play-services-places:11.+'
+    compile 'org.json:json:20160810'
     testCompile 'junit:junit:4.12'
 }

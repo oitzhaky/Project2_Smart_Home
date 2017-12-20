@@ -1,17 +1,19 @@
 package com.example.oitzh.myapplication;
 
+
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.iot.AWSIotKeystoreHelper;
 import com.amazonaws.mobileconnectors.iot.AWSIotMqttClientStatusCallback;
@@ -22,7 +24,9 @@ import com.amazonaws.mobileconnectors.iot.AWSIotMqttQos;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.iot.AWSIotClient;
-import com.amazonaws.services.iot.model.*;
+import com.amazonaws.services.iot.model.AttachPrincipalPolicyRequest;
+import com.amazonaws.services.iot.model.CreateKeysAndCertificateRequest;
+import com.amazonaws.services.iot.model.CreateKeysAndCertificateResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -30,10 +34,14 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlacePicker;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
-import java.util.UUID;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -396,16 +404,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
     //Call an activity for creating a scenario
     public void createActivity(View v) {
-        Intent i = new Intent(this, Input_actionsActivity.class);
+        Intent i = new Intent(this, InputActionsActivity.class);
         startActivityForResult(i, MY_CHILD_ACTIVITY);
     }
 
     //Call an activity for editing existing a scenario
     public void editActivity(View v, Scenario editedScenario) {
-        Intent i = new Intent(this, Input_actionsActivity.class);
+        Intent i = new Intent(this, InputActionsActivity.class);
         //Scenario editedScenario = itemScenarioList.get(itemScenarioList.size()-1);
         i.putExtra("edit", editedScenario);
         startActivityForResult(i, MY_CHILD_ACTIVITY);
@@ -424,8 +431,8 @@ public class MainActivity extends AppCompatActivity {
             // TODO: Handle the error.
         }
 
-       // PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-       // startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
+        // PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+        // startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
     }
 
     @Override
@@ -455,25 +462,61 @@ public class MainActivity extends AppCompatActivity {
 
     private void process(Scenario scenarioCreated) {
         ScenarioInput scenarioInput = scenarioCreated.scenarioInput;
-        for (ScenarioInput.Name name : scenarioInput.names) {
-            String info;
-            switch (name) {
-                case Location:
-                    info = scenarioInput.trigger.location.toString().replace("_", " ");
-                    break;
-                case Time:
-                    String[] string = scenarioInput.trigger.time.toString().replace("_", " ").split(" ");
-                    info = string[0] + String.valueOf(scenarioInput.trigger.climate.first)
-                            + ((string.length > 2) ? String.valueOf(scenarioInput.trigger.time.second) : "");
-                    break;
-                case Climate:
-                    info = scenarioInput.trigger.climate.toString().replace("_", " ").split(" ")[0] + String.valueOf(scenarioInput.trigger.climate.first);
-                    break;
-                case Motion:
-                    scenarioInput.trigger.motion.toString().replace("_", " ");
-                    break;
+        ScenarioAction scenarioAction = scenarioCreated.scenarioAction;
+        JSONObject obj = new JSONObject();
+        JSONObject scenarioObj = new JSONObject();
+        JSONObject conditionsObj = new JSONObject();
+        JSONObject actionsObj = new JSONObject();
+
+        try {
+            for (ScenarioInput.Name name : scenarioInput.names) {
+                switch (name) {
+                    case Location:
+                        conditionsObj.put("location", "=" + "'" + scenarioInput.trigger.location.toString().toLowerCase() + "'");
+                        break;
+                    case Time:
+                        conditionsObj.put("time","=" + scenarioInput.trigger.time.toString().replaceFirst("HHMM", String.valueOf(scenarioInput.trigger.time.first)).replaceFirst("HHMM", String.valueOf(scenarioInput.trigger.time.second)).toLowerCase());
+                        break;
+                    case Climate:
+                        String value = scenarioInput.trigger.climate.toString().replace("_", "").replaceFirst("Above", ">").replace("Below", "<").replace("Degrees", String.valueOf(scenarioInput.trigger.climate.first)).toLowerCase();
+                        conditionsObj.put("climate", value);
+                        break;
+                    case Motion:
+                        conditionsObj.put("motion", "=" +  "'" + scenarioInput.trigger.motion.toString().toLowerCase() + "'" );
+                        break;
+                }
+            }
+            for (ScenarioAction.Name name : scenarioAction.names) {
+                switch (name) {
+                    case AC:
+                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.ac.name().toLowerCase());
+                        break;
+                    case TV:
+                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.tv.name().toLowerCase());
+                        break;
+                    case Light:
+                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.light.name().toLowerCase());
+                        break;
+                    case Security:
+                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.security.name().toLowerCase());
+                        break;
+                    case Boiler:
+                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.boiler.name().toLowerCase());
+                        break;
+                }
+            }
+            obj.put(scenarioCreated.getScenarioName(),scenarioObj.put("conditions",conditionsObj).put("actions",actionsObj));
+            String payLoad = obj.toString();
+
+            final String topic = "scenario/create";
+            try {
+                mqttManager.publishString(payLoad, topic, AWSIotMqttQos.QOS0);
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Publish error.", e);
             }
 
+        } catch (JSONException e) {
+            System.out.println(e.getMessage());
         }
     }
     //endregion

@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-public class Input_actionsActivity extends AppCompatActivity {
+public class InputActionsActivity extends AppCompatActivity {
 
     public List<ScenarioButton> actions;
     public List<ScenarioButton> inputs;
@@ -77,7 +77,7 @@ public class Input_actionsActivity extends AppCompatActivity {
         //make action buttons clickable - we have at least one input button!
         makeActionBtnsClickable();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(Input_actionsActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(InputActionsActivity.this);
         builder.setTitle("Choose Triggers");
         builder.setIcon(R.drawable.ic_event_black_48px);
         builder.setCancelable(false);  // disallow cancel of AlertDialog on click of back button and outside touch
@@ -122,7 +122,7 @@ public class Input_actionsActivity extends AppCompatActivity {
 //                                alertDialogList.getChildAt(stringIndex).setEnabled(false);
 //                                location.selectedDialogOptions[stringIndex] = false;
 //                            }
-//                            //Toast.makeText(Input_actionsActivity.this, "You chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
+//                            //Toast.makeText(InputActionsActivity.this, "You chose " + InputActionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
 //                        } else {
 //                            if (location.dialogOptions[which].equals("When leaving home")) {
 //                                int stringIndex = Arrays.asList(location.dialogOptions).indexOf("When arriving home");
@@ -137,7 +137,7 @@ public class Input_actionsActivity extends AppCompatActivity {
 //                                toggleButton.setChecked(false);
 
 //                            }
-                        //Toast.makeText(Input_actionsActivity.this, "You UN-chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
+                        //Toast.makeText(InputActionsActivity.this, "You UN-chose " + InputActionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
                         //}
                     }
                 });
@@ -224,7 +224,7 @@ public class Input_actionsActivity extends AppCompatActivity {
                                 alertDialogList.getChildAt(stringIndex).setEnabled(false);
                                 motion.selectedDialogOptions[stringIndex] = false;
                             }
-                            //Toast.makeText(Input_actionsActivity.this, "You chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
+                            //Toast.makeText(InputActionsActivity.this, "You chose " + InputActionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
                         } else {
                             if (motion.dialogOptions[which].equals("When Leaving")) {
                                 int stringIndex = Arrays.asList(motion.dialogOptions).indexOf("When Arriving");
@@ -239,7 +239,7 @@ public class Input_actionsActivity extends AppCompatActivity {
 //                                toggleButton.setChecked(false);
 
 //                            }
-                            //Toast.makeText(Input_actionsActivity.this, "You UN-chose " + Input_actionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
+                            //Toast.makeText(InputActionsActivity.this, "You UN-chose " + InputActionsActivity.this.location.dialogOptions[which], Toast.LENGTH_SHORT).show(); //print comment
                         }
                     }
                 });

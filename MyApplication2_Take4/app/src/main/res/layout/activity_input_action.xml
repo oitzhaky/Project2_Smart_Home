@@ -204,7 +204,7 @@
                         android:layout_height="wrap_content"
                         android:drawableBottom="@drawable/ic_lightbulb_on_outline"
                         android:onClick="onClickFunc"
-                        android:tag="Lights"
+                        android:tag="Light"
                         android:textOff="Lights"
                         android:textOn="Lights" />
 
