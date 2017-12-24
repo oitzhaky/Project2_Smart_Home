@@ -456,7 +456,7 @@ public class InputActionsActivity extends AppCompatActivity {
                                         final int StringIndex = findIndexInArrayContainingString(Arrays.asList(time.dialogOptions), checkBox.getText().toString());
                                         time.selectedDialogOptions[StringIndex] = true;
                                         time.dialogOptions[StringIndex] = "Between " + editText.getText().toString() +
-                                                "and " + editText2.getText().toString();
+                                                " and " + editText2.getText().toString();
                                     }
                                 }
                             } else if (checkBox.isChecked()) {

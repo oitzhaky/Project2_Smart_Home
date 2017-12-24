@@ -54,13 +54,22 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/setHomeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="publishScenario"
+            android:onClick="createPlacePickerActivity"
             android:layout_marginLeft="6dp"
             android:layout_gravity="center"
             android:text="Set Home" />
+
+        <Button
+            android:id="@+id/setCurrentPlaceButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="createPlacePickerCurrentActivity"
+            android:layout_marginLeft="6dp"
+            android:layout_gravity="center"
+            android:text="Set Current Place" />
 
         <ListView
             android:id="@+id/listview"

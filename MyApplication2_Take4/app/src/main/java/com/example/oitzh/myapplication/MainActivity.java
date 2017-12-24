@@ -1,10 +1,17 @@
 package com.example.oitzh.myapplication;
 
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -71,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     final String SECURITY_TOPIC = "AWS/SECURITY";
     final int MY_CHILD_ACTIVITY = 1;
     final int PLACE_PICKER_REQUEST = 2;
+    final int CURRENT_PLACE_PICKER_REQUEST = 3;
     AWSIotClient mIotAndroidClient;
     AWSIotMqttManager mqttManager;
     String clientId;
@@ -158,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
         listView.setEmptyView(findViewById(android.R.id.empty));
         listView.setAdapter(customAdapter);
 
-
+/*
         LocationMock locationMock = null;
         try {
             locationMock = new LocationMock(mFusedLocationClient, this);
@@ -168,6 +176,24 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         locationMock.getLastLocation(this);
+        */
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    LocationMock locationMock = new LocationMock(mFusedLocationClient, MainActivity.this);
+                    while (true) {
+                        locationMock.getLastLocation(MainActivity.this);
+                    }
+                } catch (GooglePlayServicesNotAvailableException e) {
+                    e.printStackTrace();
+                } catch (GooglePlayServicesRepairableException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }.start();
 
         //region AWS Code
 
@@ -419,7 +445,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void createPlacePickerActivity(View v) throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
+        /*
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(MainActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        1);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+        }
+        */
         try {
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
@@ -435,6 +475,19 @@ public class MainActivity extends AppCompatActivity {
         // startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
     }
 
+    public void createPlacePickerCurrentActivity(View v) throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
+        try {
+            Intent intent =
+                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
+                            .build(this);
+            startActivityForResult(intent, CURRENT_PLACE_PICKER_REQUEST);
+        } catch (GooglePlayServicesRepairableException e) {
+            // TODO: Handle the error.
+        } catch (GooglePlayServicesNotAvailableException e) {
+            // TODO: Handle the error.
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         //super.onActivityResult(requestCode, resultCode, data);
@@ -443,7 +496,7 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == Activity.RESULT_OK) {
                     Scenario scenarioCreated = (Scenario) data.getSerializableExtra("result");
                     process(scenarioCreated);
-                    publishScenario(scenarioCreated); //publish to aws server!
+                    //publishScenario(scenarioCreated); //publish to aws server!
                     itemScenarioList.add(new Scenario(scenarioCreated));
                     customAdapter.notifyDataSetChanged();
 
@@ -455,7 +508,29 @@ public class MainActivity extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Place place = PlacePicker.getPlace(data, this);
                     LocationMock.home = place;
+                    Button button = (Button) findViewById(R.id.setHomeButton);
+                    button.setText("Change Home");
                 }
+                break;
+            }
+
+            case (CURRENT_PLACE_PICKER_REQUEST): {
+                if (resultCode == RESULT_OK) {
+                    Place place = PlacePicker.getPlace(data, this);
+                    LocationMock.currentPlace = place;
+                    Button button = (Button) findViewById(R.id.setCurrentPlaceButton);
+                    button.setText("Change Current Place");
+                }
+                float[] distance = new float[3];
+                Location.distanceBetween(LocationMock.currentPlace.getLatLng().latitude, LocationMock.currentPlace.getLatLng().longitude, LocationMock.home.getLatLng().latitude, LocationMock.home.getLatLng().longitude, distance);
+                float distanceCurrentFromHome = distance[0];
+                if (Math.round(distanceCurrentFromHome) < 50) {
+                    this.publishLocation(ScenarioInput.Trigger.Location.When_Arriving);
+                } else {
+                    this.publishLocation(ScenarioInput.Trigger.Location.When_Leaving);
+                }
+
+                break;
             }
         }
     }
@@ -475,14 +550,14 @@ public class MainActivity extends AppCompatActivity {
                         conditionsObj.put("location", "=" + "'" + scenarioInput.trigger.location.toString().toLowerCase() + "'");
                         break;
                     case Time:
-                        conditionsObj.put("time","=" + scenarioInput.trigger.time.toString().replaceFirst("HHMM", String.valueOf(scenarioInput.trigger.time.first)).replaceFirst("HHMM", String.valueOf(scenarioInput.trigger.time.second)).toLowerCase());
+                        conditionsObj.put("time", ScenarioInput.Trigger.Time.toSqlCondition(scenarioInput.trigger.time));
                         break;
                     case Climate:
                         String value = scenarioInput.trigger.climate.toString().replace("_", "").replaceFirst("Above", ">").replace("Below", "<").replace("Degrees", String.valueOf(scenarioInput.trigger.climate.first)).toLowerCase();
                         conditionsObj.put("climate", value);
                         break;
                     case Motion:
-                        conditionsObj.put("motion", "=" +  "'" + scenarioInput.trigger.motion.toString().toLowerCase() + "'" );
+                        conditionsObj.put("motion", "=" + "'" + scenarioInput.trigger.motion.toString().toLowerCase() + "'");
                         break;
                 }
             }
@@ -505,7 +580,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
-            obj.put(scenarioCreated.getScenarioName(),scenarioObj.put("conditions",conditionsObj).put("actions",actionsObj));
+            obj.put(scenarioCreated.getScenarioName(), scenarioObj.put("conditions", conditionsObj).put("actions", actionsObj));
             String payLoad = obj.toString();
 
             final String topic = "scenario/create";
@@ -517,6 +592,17 @@ public class MainActivity extends AppCompatActivity {
 
         } catch (JSONException e) {
             System.out.println(e.getMessage());
+        }
+
+        //Validating  there is no duplicate scenario names
+        int appearingCounter = 0;
+        for (Scenario scenario : itemScenarioList) {
+            if (scenario.getScenarioName().split("[(]")[0].equals(scenarioCreated.getScenarioName())) {
+                appearingCounter++;
+            }
+        }
+        if (appearingCounter > 0) {
+            scenarioCreated.setScenarioName(scenarioCreated.getScenarioName() + "(" + String.valueOf(appearingCounter) + ")");
         }
     }
     //endregion
@@ -558,15 +644,37 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void publishRemovedScenario(Scenario removedScenario) {
-        final String topic = "AWS/Scenario";
-        final String msg = "REMOVED!" + removedScenario.getScenarioName();
+        final String topic = "scenario/remove";
+        final String name = removedScenario.getScenarioName();
 
+        JSONObject obj = new JSONObject();
         try {
-            mqttManager.publishString(msg, topic, AWSIotMqttQos.QOS0);
+            obj.put("scenario_name", name);
+            String payLoad = obj.toString();
+            mqttManager.publishString(payLoad, topic, AWSIotMqttQos.QOS0);
+        } catch (JSONException e) {
+            e.printStackTrace();
         } catch (Exception e) {
             Log.e(LOG_TAG, "Publish error.", e);
         }
     }
     //endregion
+
+
+    public void publishLocation(ScenarioInput.Trigger.Location location) {
+        final String topic = "scenario/data";
+
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("sender", location.getClass().toString().substring(location.getClass().toString().lastIndexOf("$")));
+            obj.put("location", location.toString().toLowerCase());
+            String payLoad = obj.toString();
+            mqttManager.publishString(payLoad, topic, AWSIotMqttQos.QOS0);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Publish error.", e);
+        }
+    }
 }
 

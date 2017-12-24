@@ -54,6 +54,20 @@ public class ScenarioInput implements Serializable {
                 t.second = str.split(" ").length > 3 ? new ScenarioTime(str.split(" ")[3]) : null;
                 return t;
             }
+
+            public static String toSqlCondition(Time time){
+                switch(time){
+                    case At_HHMM:
+                        return "=" + time.first.toString();
+                    case Between_HHMM_and_HHMM:
+                        if(time.first.toDouble()<time.second.toDouble()){
+                            return ">" + time.first.toString() + " AND " + time.getClass().toString().substring(time.getClass().toString().lastIndexOf("$") + 1).toLowerCase() +"<" + time.second.toString();
+                        }else{
+                            return ">" + time.first.toString() + " OR " + time.getClass().toString().substring(time.getClass().toString().lastIndexOf("$") + 1).toLowerCase() + "<" + time.second.toString();
+                        }
+                }
+                return "";
+            }
         }
 
         public enum Location {

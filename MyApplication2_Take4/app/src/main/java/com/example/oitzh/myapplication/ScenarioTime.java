@@ -18,8 +18,12 @@ public class ScenarioTime {
         return time instanceof ScenarioTime && ((this.hour == ((ScenarioTime) time).hour) && (this.minutes == ((ScenarioTime) time).minutes));
     }
 
+    public Double toDouble(){
+        return Double.parseDouble(toString());
+    }
+
     @Override
     public String toString(){
-        return String.format("%02d",hour)+ ":" + String.format("%02d",minutes);
+        return String.format("%02d",hour)+ "." + String.format("%02d",minutes);
     }
 }

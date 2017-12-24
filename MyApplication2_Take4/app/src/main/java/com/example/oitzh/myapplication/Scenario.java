@@ -85,6 +85,10 @@ public class Scenario implements Serializable {
         return scenarioName;
     }
 
+    public void setScenarioName(String newScenarioName) {
+        this.scenarioName = newScenarioName;
+    }
+
 //    public String printString() {
 //
 //        String msg = "";

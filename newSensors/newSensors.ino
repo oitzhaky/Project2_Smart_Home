@@ -9,6 +9,10 @@
 #include <ESP8266WiFiMulti.h>
 #include <Wire.h>
 #include <SFE_BMP180.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
+#include <string>
+
 //#include <IRsend.h>
 
 //AWS
@@ -82,6 +86,13 @@ char report[16] = "-10";
 //temp sensor
 SFE_BMP180 pressure;
 int prevTemp = 0;
+
+//time
+#define NTP_OFFSET   60 * 60      // In seconds
+#define NTP_INTERVAL 60 * 1000    // In miliseconds
+#define NTP_ADDRESS  "europe.pool.ntp.org"
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, NTP_ADDRESS, NTP_OFFSET*2, NTP_INTERVAL);
 
 //callback to handle mqtt messages
 void messageArrived(MQTT::MessageData& md)
@@ -261,6 +272,9 @@ void setup() {
 		sendmessage();
 	}
 
+	//time
+	timeClient.begin();
+
 }
 
 
@@ -327,6 +341,12 @@ void loop() {
 		}
 
 	}
+
+	//time
+	timeClient.update();
+	char minutes[3];
+	sprintf(minutes, "%02d", timeClient.getMinutes());
+	String formattedTime = String(timeClient.getHours()) + "." + String(minutes);
 
 
 }

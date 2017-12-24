@@ -147,6 +147,7 @@ public class CustomAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     Scenario editScenario = itemModelList.remove(position);
+                    mainActivity.publishRemovedScenario(editScenario);
                     //itemModelList.add(editScenario);
                     mainActivity.editActivity(imgEdit, editScenario);
                     //Toast.makeText(context, String.valueOf(position) , Toast.LENGTH_SHORT).show();
