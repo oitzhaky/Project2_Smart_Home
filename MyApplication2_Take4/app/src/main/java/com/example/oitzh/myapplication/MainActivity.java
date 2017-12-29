@@ -178,13 +178,19 @@ public class MainActivity extends AppCompatActivity {
         locationMock.getLastLocation(this);
         */
 
-        new Thread() {
+
+            new Thread() {
             @Override
             public void run() {
                 try {
                     LocationMock locationMock = new LocationMock(mFusedLocationClient, MainActivity.this);
                     while (true) {
                         locationMock.getLastLocation(MainActivity.this);
+                        try {
+                            Thread.sleep(30*1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                 } catch (GooglePlayServicesNotAvailableException e) {
                     e.printStackTrace();
@@ -662,11 +668,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void publishLocation(ScenarioInput.Trigger.Location location) {
-        final String topic = "scenario/data";
+        final String topic = "sensors/data";
 
         JSONObject obj = new JSONObject();
         try {
-            obj.put("sender", location.getClass().toString().substring(location.getClass().toString().lastIndexOf("$")));
+            obj.put("sender", location.getClass().toString().substring(location.getClass().toString().lastIndexOf("$")-1));
             obj.put("location", location.toString().toLowerCase());
             String payLoad = obj.toString();
             mqttManager.publishString(payLoad, topic, AWSIotMqttQos.QOS0);

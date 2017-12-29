@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Input", "..\..\Input\Input.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Motion", "..\..\Motion\Motion.vcxproj", "{C1185653-B274-4B58-A548-CAA0F06B92FA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Climate", "..\..\Climate\Climate.vcxproj", "{B9B99944-0402-4536-96A0-09FE9929016B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Time", "..\..\Time\Time.vcxproj", "{2F5754C2-1E12-459B-90E8-137802BB27FD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Output", "..\..\Output\Output.vcxproj", "{EB9E85BC-654C-4799-B421-CADFCDF039AC}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TV", "..\..\TV\TV.vcxproj", "{C6F23DED-F68D-4456-8BDF-31223C40D30D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{C1185653-B274-4B58-A548-CAA0F06B92FA}.Debug|x86.ActiveCfg = Debug|Win32
+		{C1185653-B274-4B58-A548-CAA0F06B92FA}.Debug|x86.Build.0 = Debug|Win32
+		{C1185653-B274-4B58-A548-CAA0F06B92FA}.Release|x86.ActiveCfg = Release|Win32
+		{C1185653-B274-4B58-A548-CAA0F06B92FA}.Release|x86.Build.0 = Release|Win32
+		{B9B99944-0402-4536-96A0-09FE9929016B}.Debug|x86.ActiveCfg = Debug|Win32
+		{B9B99944-0402-4536-96A0-09FE9929016B}.Debug|x86.Build.0 = Debug|Win32
+		{B9B99944-0402-4536-96A0-09FE9929016B}.Release|x86.ActiveCfg = Release|Win32
+		{B9B99944-0402-4536-96A0-09FE9929016B}.Release|x86.Build.0 = Release|Win32
+		{2F5754C2-1E12-459B-90E8-137802BB27FD}.Debug|x86.ActiveCfg = Debug|Win32
+		{2F5754C2-1E12-459B-90E8-137802BB27FD}.Debug|x86.Build.0 = Debug|Win32
+		{2F5754C2-1E12-459B-90E8-137802BB27FD}.Release|x86.ActiveCfg = Release|Win32
+		{2F5754C2-1E12-459B-90E8-137802BB27FD}.Release|x86.Build.0 = Release|Win32
+		{EB9E85BC-654C-4799-B421-CADFCDF039AC}.Debug|x86.ActiveCfg = Debug|Win32
+		{EB9E85BC-654C-4799-B421-CADFCDF039AC}.Debug|x86.Build.0 = Debug|Win32
+		{EB9E85BC-654C-4799-B421-CADFCDF039AC}.Release|x86.ActiveCfg = Release|Win32
+		{EB9E85BC-654C-4799-B421-CADFCDF039AC}.Release|x86.Build.0 = Release|Win32
+		{C6F23DED-F68D-4456-8BDF-31223C40D30D}.Debug|x86.ActiveCfg = Debug|Win32
+		{C6F23DED-F68D-4456-8BDF-31223C40D30D}.Debug|x86.Build.0 = Debug|Win32
+		{C6F23DED-F68D-4456-8BDF-31223C40D30D}.Release|x86.ActiveCfg = Release|Win32
+		{C6F23DED-F68D-4456-8BDF-31223C40D30D}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20EA7A94-0370-4025-888F-A12528F19461}
+	EndGlobalSection
+EndGlobal

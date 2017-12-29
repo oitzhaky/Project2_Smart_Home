@@ -22,17 +22,34 @@ public class LocationMock {
     public static Place currentPlace = null;
     private FusedLocationProviderClient mFusedLocationClient;
     private MainActivity mainActivity;
+    private OnSuccessListener<Location> listener;
 
     LocationMock(FusedLocationProviderClient mFusedLocationClient, MainActivity activity) throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
         this.mFusedLocationClient = mFusedLocationClient;
         this.mainActivity = activity;
-        if (home == null) {
-            // activity.createPlacePickerActivity();
-        }
+        listener = new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                // Got last known location. In some rare situations this can be null.
+                if (location != null && home != null) {
+                    float[] distance = new float[2];
+                    Location.distanceBetween(location.getLatitude(), location.getLongitude(), home.getLatLng().latitude, home.getLatLng().longitude, distance);
+                    float distanceCurrentFromHome = distance[0];
+                    if (Math.round(distanceCurrentFromHome) < 1000) {
+                        mainActivity.publishLocation(ScenarioInput.Trigger.Location.When_Arriving);
+                    } else {
+                        mainActivity.publishLocation(ScenarioInput.Trigger.Location.When_Leaving);
+                    }
+                    //location.distanceTo()
+                    // Logic to handle location object
+                }
+            }
+        };
     }
 
 
     public void getLastLocation(Context context) {
+
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
 
@@ -54,26 +71,16 @@ public class LocationMock {
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            return;
         }
+
         mFusedLocationClient.getLastLocation()
-                .addOnSuccessListener((Activity) context, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        // Got last known location. In some rare situations this can be null.
-                        if (location != null) {
-                            float[] distance = new float[2];
-                            Location.distanceBetween(location.getLatitude(), location.getLongitude(), home.getLatLng().latitude, home.getLatLng().longitude, distance);
-                            float distanceCurrentFromHome = distance[0];
-                            if (Math.round(distanceCurrentFromHome) < 50) {
-                                mainActivity.publishLocation(ScenarioInput.Trigger.Location.When_Arriving);
-                            } else {
-                                mainActivity.publishLocation(ScenarioInput.Trigger.Location.When_Leaving);
-                            }
-                            //location.distanceTo()
-                            // Logic to handle location object
-                        }
-                    }
-                });
+                .addOnSuccessListener((Activity) context, listener);
+
     }
 }
