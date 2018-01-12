@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -13,13 +14,22 @@ import java.util.stream.Stream;
 
 public class ScenarioInput implements Serializable {
     public List<Name> names = new ArrayList<>();
+    public HashMap<Name,String> sensorsInfo = new HashMap<>();
     public Trigger trigger = new Trigger();
 
-    public enum Name {
+    public enum Name implements Serializable {
         Location,
         Time,
         Climate,
-        Motion
+        Motion;
+
+        public static Object stringToInputName(String name){
+            try {
+               return valueOf(name.substring(0, 1).toUpperCase() + name.substring(1));
+            }catch (IllegalArgumentException e){
+                return null;
+            }
+        }
     }
 
     public static class Trigger implements Serializable {
@@ -35,8 +45,6 @@ public class ScenarioInput implements Serializable {
         public Motion motion;
 
         public enum Time {
-            From_HHMM,
-            Until_HHMM,
             At_HHMM,
             Between_HHMM_and_HHMM;
 

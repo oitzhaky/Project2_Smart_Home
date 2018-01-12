@@ -52,4 +52,5 @@ dependencies {
     compile 'com.google.android.gms:play-services-places:11.+'
     compile 'org.json:json:20160810'
     testCompile 'junit:junit:4.12'
+    compile 'org.simpleframework:simple-xml:2.7.1'
 }

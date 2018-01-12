@@ -49,7 +49,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="0dp"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingLeft="16dp"
@@ -84,32 +84,76 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="0dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:paddingBottom="8dp"
             android:paddingLeft="0dp"
             android:paddingRight="0dp">
 
-            <ToggleButton
-                android:id="@+id/gpsBtn"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableBottom="@drawable/ic_map_marker"
-                android:onClick="onClickFunc"
-                android:tag="Location"
-                android:textOff="Location"
-                android:textOn="Location" />
+                android:layout_marginTop="0dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp">
 
-            <ToggleButton
-                android:id="@+id/climateBtn"
+                <ToggleButton
+                    android:id="@+id/gpsBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_map_marker"
+                    android:onClick="onClickFunc"
+                    android:tag="Location"
+                    android:textOff="Location"
+                    android:textOn="Location" />
+
+                <Spinner
+                    android:id="@+id/spinner_Location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableBottom="@drawable/ic_climate_control"
-                android:onClick="onClickFunc"
-                android:tag="Climate"
-                android:textOff="Climate"
-                android:textOn="Climate" />
+                android:layout_marginTop="0dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp">
+
+                <ToggleButton
+                    android:id="@+id/climateBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_climate_control"
+                    android:onClick="onClickFunc"
+                    android:tag="Climate"
+                    android:textOff="Climate"
+                    android:textOn="Climate" />
+
+                <Spinner
+                    android:id="@+id/spinner_Climate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp">
 
             <ToggleButton
                 android:id="@+id/timeBtn"
@@ -121,15 +165,40 @@
                 android:textOff="Time"
                 android:textOn="Time" />
 
-            <ToggleButton
-                android:id="@+id/motionBtn"
+                <Spinner
+                    android:id="@+id/spinner_Time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableBottom="@drawable/ic_human_handsup"
-                android:onClick="onClickFunc"
-                android:tag="Motion"
-                android:textOff="Motion"
-                android:textOn="Motion" />
+                android:layout_marginTop="0dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingBottom="0dp"
+                android:paddingLeft="0dp"
+                android:paddingRight="0dp">
+
+                <ToggleButton
+                    android:id="@+id/motionBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawableBottom="@drawable/ic_human_handsup"
+                    android:onClick="onClickFunc"
+                    android:tag="Motion"
+                    android:textOff="Motion"
+                    android:textOn="Motion" />
+
+                <Spinner
+                    android:id="@+id/spinner_Motion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
 
@@ -139,10 +208,10 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="0dp"
         android:gravity="center"
         android:orientation="vertical"
-        android:paddingBottom="10dp"
+        android:paddingBottom="0dp"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
@@ -174,7 +243,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="0dp"
             android:gravity="center"
             android:orientation="horizontal"
             android:paddingLeft="8dp"
@@ -198,15 +267,43 @@
                     android:paddingLeft="3dp"
                     android:paddingRight="3dp">
 
-                    <ToggleButton
-                        android:id="@+id/lightsBtn"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:drawableBottom="@drawable/ic_lightbulb_on_outline"
-                        android:onClick="onClickFunc"
-                        android:tag="Light"
-                        android:textOff="Lights"
-                        android:textOn="Lights" />
+                        android:layout_marginTop="0dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="0dp"
+                        android:paddingLeft="0dp"
+                        android:paddingRight="0dp">
+
+
+                        <ToggleButton
+                            android:id="@+id/lightsBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:drawableBottom="@drawable/ic_lightbulb_on_outline"
+                            android:onClick="onClickFunc"
+                            android:tag="Light"
+                            android:textOff="Lights"
+                            android:textOn="Lights" />
+
+                        <Spinner
+                            android:id="@+id/spinner_Lights"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="0dp"
+                        android:paddingLeft="0dp"
+                        android:paddingRight="0dp">
 
                     <ToggleButton
                         android:id="@+id/acBtn"
@@ -214,9 +311,26 @@
                         android:layout_height="wrap_content"
                         android:drawableBottom="@drawable/ic_oil_temperature"
                         android:onClick="onClickFunc"
-                        android:tag="AC"
-                        android:textOff="AC"
-                        android:textOn="AC" />
+                        android:tag="Ac"
+                        android:textOff="Ac"
+                        android:textOn="Ac" />
+
+                        <Spinner
+                            android:id="@+id/spinner_AC"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="0dp"
+                        android:paddingLeft="0dp"
+                        android:paddingRight="0dp">
 
                     <ToggleButton
                         android:id="@+id/securityBtn"
@@ -227,6 +341,14 @@
                         android:tag="Security"
                         android:textOff="Security"
                         android:textOn="Security" />
+
+                        <Spinner
+                            android:id="@+id/spinner_Security"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
                 </LinearLayout>
 
                 <LinearLayout
@@ -237,15 +359,42 @@
                     android:paddingLeft="3dp"
                     android:paddingRight="3dp">
 
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="0dp"
+                        android:paddingLeft="0dp"
+                        android:paddingRight="0dp">
+
                     <ToggleButton
                         android:id="@+id/tvBtn"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:drawableBottom="@drawable/ic_television_classic"
                         android:onClick="onClickFunc"
-                        android:tag="TV"
-                        android:textOff="TV"
-                        android:textOn="TV" />
+                        android:tag="Tv"
+                        android:textOff="Tv"
+                        android:textOn="Tv" />
+
+                        <Spinner
+                            android:id="@+id/spinner_TV"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="0dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:paddingBottom="0dp"
+                        android:paddingLeft="0dp"
+                        android:paddingRight="0dp">
 
                     <ToggleButton
                         android:id="@+id/boilerBtn"
@@ -256,6 +405,14 @@
                         android:tag="Boiler"
                         android:textOff="Boiler"
                         android:textOn="Boiler" />
+
+                        <Spinner
+                            android:id="@+id/spinner_Boiler"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </LinearLayout>
+
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
@@ -264,7 +421,7 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:gravity="center"
         android:orientation="vertical"
         android:paddingLeft="16dp"

@@ -9,6 +9,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -138,6 +144,16 @@ public class CustomAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     Scenario removedScenario = itemModelList.remove(position);
+
+                    //Write to xml after deletion of scenario
+                    Serializer serializer = new Persister();
+                    File result =  new File(mainActivity.getFilesDir(), "scenario.xml");
+                    try {
+                        serializer.write(mainActivity, result);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
                     mainActivity.publishRemovedScenario(removedScenario);
                     notifyDataSetChanged();
                 }

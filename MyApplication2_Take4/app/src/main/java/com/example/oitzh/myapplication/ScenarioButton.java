@@ -1,25 +1,47 @@
 package com.example.oitzh.myapplication;
 
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementArray;
+import org.simpleframework.xml.Root;
+
 import java.io.Serializable;
 
 /**
  * Created by oitzh on 21/09/2017.
  */
 
+@Root
 public class ScenarioButton implements Serializable {
 
+    @Attribute
     public int toggleButtonID;
-    public String[] dialogOptions;
-    public boolean[] selectedDialogOptions;
 
-
+    @Attribute
     public String tagName;
 
-    public ScenarioButton(int toggleButtonID, String[] dialogOptions, boolean[] selectedDialogOptions, String tagName) {
+    @Attribute
+    public String selectedSpinnerItem;
+
+    @Attribute
+    public int spinnerId;
+
+    @ElementArray
+    public String[] dialogOptions;
+
+    @ElementArray
+    public boolean[] selectedDialogOptions;
+
+    public ScenarioButton(){
+
+    }
+
+    public ScenarioButton(int toggleButtonID, String[] dialogOptions, boolean[] selectedDialogOptions, String tagName, int spinnerId) {
         this.toggleButtonID = toggleButtonID;
         this.dialogOptions = dialogOptions;
         this.selectedDialogOptions = selectedDialogOptions;
         this.tagName = tagName;
+        this.spinnerId = spinnerId;
     }
 
     public ScenarioButton(int toggleButtonID){
@@ -43,4 +65,5 @@ public class ScenarioButton implements Serializable {
     public String getTagName() {
         return tagName;
     }
+
 }

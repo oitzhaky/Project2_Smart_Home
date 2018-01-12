@@ -6,9 +6,7 @@ import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -44,12 +42,21 @@ import com.google.android.gms.location.places.ui.PlacePicker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
+@Root
 public class MainActivity extends AppCompatActivity {
 
     static final String LOG_TAG = MainActivity.class.getCanonicalName();
@@ -71,11 +78,7 @@ public class MainActivity extends AppCompatActivity {
     // --- Constants to modify per your configuration ---
     // Certificate and key aliases in the KeyStore
     private static final String CERTIFICATE_ID = "default";
-    final String AC_TOPIC = "AWS/AC";
-    final String TV_TOPIC = "AWS/TV";
-    final String LIGHTS_TOPIC = "AWS/LIGHTS";
-    final String BOILER_TOPIC = "AWS/BOILER";
-    final String SECURITY_TOPIC = "AWS/SECURITY";
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 0;
     final int MY_CHILD_ACTIVITY = 1;
     final int PLACE_PICKER_REQUEST = 2;
     final int CURRENT_PLACE_PICKER_REQUEST = 3;
@@ -90,7 +93,10 @@ public class MainActivity extends AppCompatActivity {
     CognitoCachingCredentialsProvider credentialsProvider;
     ListView listView;
     EditText editTextView;
+
+    @ElementList
     ArrayList<Scenario> itemScenarioList;
+
     CustomAdapter customAdapter;
     EditText txtSubcribe;
     EditText txtTopic;
@@ -149,10 +155,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
-
-
+    ArrayList<Scenario> itemScenarioListXml;
     //endregion
     private FusedLocationProviderClient mFusedLocationClient;
+
+    HashMap<Object,List<String>> sensorsInfo = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,25 +168,25 @@ public class MainActivity extends AppCompatActivity {
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         listView = (ListView) findViewById(R.id.listview);
         editTextView = (EditText) findViewById(R.id.editTextView);
+
         itemScenarioList = new ArrayList<Scenario>();
+        //customAdapter = new CustomAdapter(getApplicationContext(), itemScenarioList, this);
+
+        //read from XML file
+        Serializer serializer = new Persister();
+        File source = new File(this.getFilesDir(), "scenario.xml");
+        try {
+            this.itemScenarioList = serializer.read(MainActivity.class, source).itemScenarioList;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         customAdapter = new CustomAdapter(getApplicationContext(), itemScenarioList, this);
         listView.setEmptyView(findViewById(android.R.id.empty));
         listView.setAdapter(customAdapter);
 
-/*
-        LocationMock locationMock = null;
-        try {
-            locationMock = new LocationMock(mFusedLocationClient, this);
-        } catch (GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-        } catch (GooglePlayServicesRepairableException e) {
-            e.printStackTrace();
-        }
-        locationMock.getLastLocation(this);
-        */
 
-
-            new Thread() {
+        new Thread() {
             @Override
             public void run() {
                 try {
@@ -187,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
                     while (true) {
                         locationMock.getLastLocation(MainActivity.this);
                         try {
-                            Thread.sleep(30*1000);
+                            Thread.sleep(30 * 1000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -394,6 +401,24 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(LOG_TAG, "   Topic: " + topic);
                             Log.d(LOG_TAG, " Message: " + message);
 
+                            try {
+                                JSONObject jsonObject = new JSONObject(message);
+                                Iterator<String> keys = jsonObject.keys();
+                                while(keys.hasNext()){
+                                    String stringKey = keys.next();
+                                    Object key = ScenarioInput.Name.stringToInputName(stringKey)!= null? (ScenarioInput.Name)ScenarioInput.Name.stringToInputName(stringKey):(ScenarioAction.Name)ScenarioAction.Name.stringToActionName(stringKey) ;
+                                    String value = (String)jsonObject.get(stringKey);
+                                    if(!sensorsInfo.containsKey(key)){
+                                        sensorsInfo.put(key,new ArrayList<>());
+                                    }
+                                    sensorsInfo.get(key).add(value);
+                                    Log.d(LOG_TAG,key.toString());
+                                    Log.d(LOG_TAG,value.toString());
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            /*
                             // 1. Instantiate an AlertDialog.Builder with its constructor
                             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 
@@ -412,6 +437,7 @@ public class MainActivity extends AppCompatActivity {
                             // 3. Get the AlertDialog from create()
                             AlertDialog dialog = builder.create();
                             dialog.show();
+                            */
                         } catch (UnsupportedEncodingException e) {
                             Log.e(LOG_TAG, "Message encoding error.", e);
                         }
@@ -420,25 +446,88 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        try {
+            Thread.sleep(2000);
+            mqttManager.subscribeToTopic("sensors/info", AWSIotMqttQos.QOS0, awsIotMqttNewMessageCallback);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
         //new Thread() {
         //    @Override
         //   public void run() {
-        try {
-            Thread.sleep(1000);
-            //mqttManager.subscribeToTopic(AC_TOPIC, AWSIotMqttQos.QOS0, awsIotMqttNewMessageCallback);
+        //try {
+        //    Thread.sleep(1000);
+        //mqttManager.subscribeToTopic(AC_TOPIC, AWSIotMqttQos.QOS0, awsIotMqttNewMessageCallback);
 
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "Subscription error.", e);
-        }
+        // } catch (Exception e) {
+        //     Log.e(LOG_TAG, "Subscription error.", e);
+        // }
         // }
         //};
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_PERMISSIONS_REQUEST_LOCATION);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+                    builder.setMessage("Application must have location permission enabled to work properly. Please enable location permission.")
+                            .setTitle("Location Permission Issue:");
+
+                    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            finish();
+                            System.exit(0);
+                        }
+                    });
+
+                    builder.setIcon(R.drawable.ic_warning_black_24px);
+
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 
 
     //Call an activity for creating a scenario
     public void createActivity(View v) {
         Intent i = new Intent(this, InputActionsActivity.class);
+        i.putExtra("sensorsInfo",sensorsInfo);
         startActivityForResult(i, MY_CHILD_ACTIVITY);
     }
 
@@ -447,25 +536,11 @@ public class MainActivity extends AppCompatActivity {
         Intent i = new Intent(this, InputActionsActivity.class);
         //Scenario editedScenario = itemScenarioList.get(itemScenarioList.size()-1);
         i.putExtra("edit", editedScenario);
+        i.putExtra("sensorsInfo",sensorsInfo);
         startActivityForResult(i, MY_CHILD_ACTIVITY);
     }
 
     public void createPlacePickerActivity(View v) throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
-        /*
-        if (ContextCompat.checkSelfPermission(MainActivity.this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(MainActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        1);
-
-                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                // app-defined int constant. The callback method gets the
-                // result of the request.
-        }
-        */
         try {
             Intent intent =
                     new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
@@ -476,9 +551,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (GooglePlayServicesNotAvailableException e) {
             // TODO: Handle the error.
         }
-
-        // PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-        // startActivityForResult(builder.build(this), PLACE_PICKER_REQUEST);
     }
 
     public void createPlacePickerCurrentActivity(View v) throws GooglePlayServicesNotAvailableException, GooglePlayServicesRepairableException {
@@ -506,7 +578,17 @@ public class MainActivity extends AppCompatActivity {
                     itemScenarioList.add(new Scenario(scenarioCreated));
                     customAdapter.notifyDataSetChanged();
 
-                    // Toast.makeText(getApplicationContext(), returnValue, Toast.LENGTH_SHORT).show();
+                    Serializer serializer = new Persister();
+                    File result = new File(this.getFilesDir(), "scenario.xml");
+                    try {
+                        serializer.write(this, result);
+                        //FileInputStream fileInputStream = openFileInput("scenario.xml");
+                        //byte[] fileByte = new byte[(int) result.length()];
+                        //fileInputStream.read(fileByte);
+                        //String str = new String(fileByte, StandardCharsets.UTF_8);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
             }
@@ -553,36 +635,36 @@ public class MainActivity extends AppCompatActivity {
             for (ScenarioInput.Name name : scenarioInput.names) {
                 switch (name) {
                     case Location:
-                        conditionsObj.put("location", "=" + "'" + scenarioInput.trigger.location.toString().toLowerCase() + "'");
+                        conditionsObj.put(scenarioInput.sensorsInfo.get(name), "=" + "'" + scenarioInput.trigger.location.toString().toLowerCase() + "'");
                         break;
                     case Time:
-                        conditionsObj.put("time", ScenarioInput.Trigger.Time.toSqlCondition(scenarioInput.trigger.time));
+                        conditionsObj.put(scenarioInput.sensorsInfo.get(name), ScenarioInput.Trigger.Time.toSqlCondition(scenarioInput.trigger.time));
                         break;
                     case Climate:
                         String value = scenarioInput.trigger.climate.toString().replace("_", "").replaceFirst("Above", ">").replace("Below", "<").replace("Degrees", String.valueOf(scenarioInput.trigger.climate.first)).toLowerCase();
-                        conditionsObj.put("climate", value);
+                        conditionsObj.put(scenarioInput.sensorsInfo.get(name), value);
                         break;
                     case Motion:
-                        conditionsObj.put("motion", "=" + "'" + scenarioInput.trigger.motion.toString().toLowerCase() + "'");
+                        conditionsObj.put(scenarioInput.sensorsInfo.get(name), "=" + "'" + scenarioInput.trigger.motion.toString().toLowerCase() + "'");
                         break;
                 }
             }
             for (ScenarioAction.Name name : scenarioAction.names) {
                 switch (name) {
-                    case AC:
-                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.ac.name().toLowerCase());
+                    case Ac:
+                        actionsObj.put(scenarioAction.sensorsInfo.get(name), scenarioAction.action.ac.name().toLowerCase());
                         break;
-                    case TV:
-                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.tv.name().toLowerCase());
+                    case Tv:
+                        actionsObj.put(scenarioAction.sensorsInfo.get(name), scenarioAction.action.tv.name().toLowerCase());
                         break;
                     case Light:
-                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.light.name().toLowerCase());
+                        actionsObj.put(scenarioAction.sensorsInfo.get(name), scenarioAction.action.light.name().toLowerCase());
                         break;
                     case Security:
-                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.security.name().toLowerCase());
+                        actionsObj.put(scenarioAction.sensorsInfo.get(name), scenarioAction.action.security.name().toLowerCase());
                         break;
                     case Boiler:
-                        actionsObj.put(name.name().toLowerCase(), scenarioAction.action.boiler.name().toLowerCase());
+                        actionsObj.put(scenarioAction.sensorsInfo.get(name), scenarioAction.action.boiler.name().toLowerCase());
                         break;
                 }
             }
@@ -615,29 +697,6 @@ public class MainActivity extends AppCompatActivity {
 
     //region Publish AWS Func
     public void publishScenario(Scenario publishedScenario) {
-
-        //prepare new AWS rule
-//        RepublishAction republishAction = new RepublishAction();
-//        republishAction.setTopic("AWS/Scenario5"); //topic to which we republish
-//        republishAction.setRoleArn("arn:aws:iam::896223013790:role/service-role/IoTRole"); //Role that has iot-publish permissions
-//
-//        com.amazonaws.services.iot.model.Action action = new Action();
-//        action.setRepublish(republishAction);
-//
-//        TopicRulePayload topicRulePayload = new TopicRulePayload();
-//        topicRulePayload.setRuleDisabled(false);
-//        topicRulePayload.setActions(Arrays.asList(action));
-//        topicRulePayload.setSql("SELECT * FROM 'AWS/Scenario'");
-//        topicRulePayload.setDescription("A test rule");
-//
-//        CreateTopicRuleRequest createTopicRuleRequest = new CreateTopicRuleRequest();
-//        createTopicRuleRequest.setRuleName("republish5");
-//        createTopicRuleRequest.setTopicRulePayload(topicRulePayload);
-//
-//
-//        mIotAndroidClient.createTopicRule(createTopicRuleRequest);
-
-
         final String topic = "AWS/Scenario";
         final String msg = publishedScenario.getScenarioName();
 
@@ -646,7 +705,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(LOG_TAG, "Publish error.", e);
         }
-
     }
 
     public void publishRemovedScenario(Scenario removedScenario) {
@@ -672,7 +730,7 @@ public class MainActivity extends AppCompatActivity {
 
         JSONObject obj = new JSONObject();
         try {
-            obj.put("sender", location.getClass().toString().substring(location.getClass().toString().lastIndexOf("$")-1));
+            obj.put("sender", location.getClass().toString().substring(location.getClass().toString().lastIndexOf("$") - 1));
             obj.put("location", location.toString().toLowerCase());
             String payLoad = obj.toString();
             mqttManager.publishString(payLoad, topic, AWSIotMqttQos.QOS0);

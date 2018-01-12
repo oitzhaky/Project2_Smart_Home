@@ -1,6 +1,8 @@
 package com.example.oitzh.myapplication;
 
-import android.renderscript.ScriptGroup;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
@@ -12,13 +14,21 @@ import java.util.List;
  * Created by oitzh on 25/09/2017.
  */
 
+@Root
 public class Scenario implements Serializable {
 
+    @Attribute
+    private String scenarioName;
+
+    @ElementList
     private List<ScenarioButton> inputButtons = new ArrayList<>();
+
+    @ElementList
     private List<ScenarioButton> actionButtons = new ArrayList<>();
     public ScenarioInput scenarioInput = new ScenarioInput();
     public ScenarioAction scenarioAction = new ScenarioAction();
-    private String scenarioName;
+
+    public Scenario(){}
 
     public Scenario(List<ScenarioButton> inputs, List<ScenarioButton> actions) {
         this.inputButtons = inputs;
@@ -31,7 +41,9 @@ public class Scenario implements Serializable {
         this.actionButtons = actions;
 
         for (ScenarioButton scenarioButton : inputButtons) {
-                    scenarioInput.names.add(ScenarioInput.Name.valueOf(scenarioButton.getTagName()));
+                    ScenarioInput.Name sensorType =  ScenarioInput.Name.valueOf(scenarioButton.getTagName());
+                    scenarioInput.names.add(sensorType);
+                    scenarioInput.sensorsInfo.put(sensorType,scenarioButton.selectedSpinnerItem);
                     for (int i = 0; i < scenarioButton.dialogOptions.length; i++) {
                         if (scenarioButton.selectedDialogOptions[i]) {
                             Class<?> clazz = null;
@@ -49,7 +61,10 @@ public class Scenario implements Serializable {
         }
 
         for (ScenarioButton scenarioButton : actionButtons) {
-            scenarioAction.names.add(ScenarioAction.Name.valueOf(scenarioButton.getTagName()));
+            ScenarioAction.Name sensorType =  ScenarioAction.Name.valueOf(scenarioButton.getTagName());
+            scenarioAction.names.add(sensorType);
+            scenarioAction.sensorsInfo.put(sensorType,scenarioButton.selectedSpinnerItem);
+            scenarioAction.names.add(sensorType);
             for (int i = 0; i < scenarioButton.dialogOptions.length; i++) {
                 if (scenarioButton.selectedDialogOptions[i]) {
                     Class<?> clazz = null;
