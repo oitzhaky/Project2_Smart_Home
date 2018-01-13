@@ -46,6 +46,7 @@ char aws_key[] = "AKIAILSQ743W4BJSZ67Q";
 char aws_secret[] = "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";
 char aws_region[] = "us-east-1";
 const char* aws_topic = "actions";
+const char* aws_sensors_info = "sensors/info";
 int port = 443;
 
 //MQTT config
@@ -78,13 +79,14 @@ const int messageLength = 256;
 char reportedValue[16];
 
 //output
-const char* outputName = "tv";
-const char* operation1 = "on";
-const char* operation2 = "off";
-const char* operation3 = "other_operation";
+const char* outputName = "tv_room";
+const char* outputType = "tv";
+String operation1 = "on";
+String operation2 = "off";
+String operation3 = "other_operation";
 
 //ir
-IRsend irsend(4);  // An IR LED is controlled by GPIO pin 4 (D2)
+IRsend irsend(4);  // An IR LED is controlled by GPIO4 pin 4 (D2)
 
 //tv
 const int rawDataSize = 105;
@@ -111,15 +113,18 @@ void messageArrived(MQTT::MessageData& md)
 
 	StaticJsonBuffer<messageLength> jsonBuffer;
 	JsonObject& root = jsonBuffer.parseObject(msg);
-	if (strcmp(root[outputName], operation1) == 0) {
+	String operation = root[outputName];
+	if (operation==operation1) {
 		// call operation1 function
 		doOperation1();
+		Serial.println("doing op1");
 	}
-	else if (strcmp(root[outputName], operation2) == 0) {
+	else if (operation==operation2) {
 		// call operation2 function
 		doOperation2();
+		Serial.println("doing op2");
 	}
-	else if (strcmp(root[outputName], operation3) == 0) {
+	else if (operation==operation3) {
 		// call operation3 function
 	}
 
@@ -128,9 +133,11 @@ void messageArrived(MQTT::MessageData& md)
 
 void doOperation1() {
 	irsend.sendRaw(rawData, rawDataSize, 38);
+	delay(2000);
 }
 void doOperation2() {
 	irsend.sendRaw(rawData, rawDataSize, 38);
+	delay(2000);
 }
 void doOperation3() {
 }
@@ -200,6 +207,24 @@ void subscribe() {
 	Serial.println("MQTT subscribed");
 }
 
+void sendSensorInfo() {
+	StaticJsonBuffer<messageLength> jsonBuffer;
+	JsonObject& root = jsonBuffer.createObject();
+	root[outputType] = outputName;
+
+	char buf[messageLength];
+	root.printTo(buf, messageLength);
+
+	//send a message
+	MQTT::Message message;
+	message.qos = MQTT::QOS0;
+	message.retained = false;
+	message.dup = false;
+	message.payload = (void*)buf;
+	message.payloadlen = strlen(buf) + 1;
+	int rc = client->publish(aws_sensors_info, message);
+}
+
 
 void setup() {
 	Serial.begin(115200);
@@ -238,5 +263,7 @@ void loop() {
 			subscribe();
 		}
 	}
+
+	sendSensorInfo();
 }
 

@@ -52,6 +52,7 @@ char aws_key[] = "AKIAILSQ743W4BJSZ67Q";
 char aws_secret[] = "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";
 char aws_region[] = "us-east-1";
 const char* aws_topic = "sensors/data";
+const char* aws_sensors_info = "sensors/info";
 int port = 443;
 
 //MQTT config
@@ -85,7 +86,8 @@ char reportedValue[16];
 
 
 //sensor
-const char* sensorName = "time";
+const char* sensorName = "time_room";
+const char* sensorType = "time";
 
 //motion detection
 int motionInputPin = D1; // input pin for PIR sensor
@@ -102,6 +104,8 @@ int prevTemp = 0;
 #define NTP_ADDRESS  "europe.pool.ntp.org"
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, NTP_ADDRESS, NTP_OFFSET, NTP_INTERVAL);
+int timeCounter;
+
 
 
 //callback to handle mqtt messages
@@ -233,6 +237,23 @@ void sendmessage() {
 	int rc = client->publish(aws_topic, message);
 }
 
+void sendSensorInfo() {
+	StaticJsonBuffer<messageLength> jsonBuffer;
+	JsonObject& root = jsonBuffer.createObject();
+	root[sensorType] = sensorName;
+
+	char buf[messageLength];
+	root.printTo(buf, messageLength);
+
+	//send a message
+	MQTT::Message message;
+	message.qos = MQTT::QOS0;
+	message.retained = false;
+	message.dup = false;
+	message.payload = (void*)buf;
+	message.payloadlen = strlen(buf) + 1;
+	int rc = client->publish(aws_sensors_info, message);
+}
 
 void setup() {
 	Serial.begin(115200);
@@ -267,6 +288,7 @@ void setup() {
 
 	//time setup
 	timeClient.begin();
+	timeCounter = 0;
 }
 
 
@@ -281,6 +303,8 @@ void loop() {
 			subscribe();
 		}
 	}
+
+	sendSensorInfo();
 
 	//// motion loop
 	//motionMeasurement = digitalRead(motionInputPin);  // read input value
@@ -321,12 +345,16 @@ void loop() {
 	//}
 
 	//time loop
+	timeCounter++;
 	timeClient.update();
 	char minutes[3];
 	sprintf(minutes, "%02d", timeClient.getMinutes());
 	String formattedTime = String(timeClient.getHours()) + "." + String(minutes);
 	formattedTime.toCharArray(reportedValue, 16);
-	sendmessage();
+	if (timeCounter % 10 == 0) {
+		sendmessage();
+	}
+
 }
 
 

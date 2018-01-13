@@ -85,16 +85,19 @@ char reportedValue[16];
 
 
 //sensor
-const char* sensorName = "climate";
+const char* sensorName = "climate_room";
+const char* sensorType = "climate";
+const char* aws_sensors_info = "sensors/info";
 
 //motion detection
 int motionInputPin = D1; // input pin for PIR sensor
 int motionState = LOW; // we start, assuming no motion detected
 int motionMeasurement = 0; // variable for reading the pin status
 
-						   //temp sensor
+//temp sensor
 SFE_BMP180 pressure;
 int prevTemp = 0;
+int climateCounter;
 
 //time
 #define NTP_OFFSET   60 * 60 * 2// in seconds
@@ -233,6 +236,24 @@ void sendmessage() {
 	int rc = client->publish(aws_topic, message);
 }
 
+void sendSensorInfo() {
+	StaticJsonBuffer<messageLength> jsonBuffer;
+	JsonObject& root = jsonBuffer.createObject();
+	root[sensorType] = sensorName;
+
+	char buf[messageLength];
+	root.printTo(buf, messageLength);
+
+	//send a message
+	MQTT::Message message;
+	message.qos = MQTT::QOS0;
+	message.retained = false;
+	message.dup = false;
+	message.payload = (void*)buf;
+	message.payloadlen = strlen(buf) + 1;
+	int rc = client->publish(aws_sensors_info, message);
+}
+
 
 void setup() {
 	Serial.begin(115200);
@@ -260,8 +281,10 @@ void setup() {
 
 	//climate setup
 	Wire.pins(0, 2);
-	if (pressure.begin())
+	if (pressure.begin()) {
 		Serial.println("BMP180 init success");
+		climateCounter = 0;
+	}
 	else
 		Serial.println("BMP180 init fail\n\n");
 
@@ -281,6 +304,8 @@ void loop() {
 			subscribe();
 		}
 	}
+
+	sendSensorInfo();
 
 	//// motion loop
 	//motionMeasurement = digitalRead(motionInputPin);  // read input value
@@ -302,23 +327,25 @@ void loop() {
 	double T;
 	delay(1000);
 	status = pressure.startTemperature();
-	if (status == 1)
+	if (status != 0)
 	{
 		delay(status);
 		status = pressure.getTemperature(T);
-		if (status == 1)
+		if (status != 0)
 		{
 			//Serial.print(T, 2);
 			char temprature[16];
 			int t = T;
 			sprintf(temprature, "%d", t);
-			if (prevTemp != t) {
+			if (climateCounter%10==0) {
 				memcpy(reportedValue, temprature, 16);
 				sendmessage();
-				prevTemp = t;
+				//prevTemp = t;
+				climateCounter = 0;
 			}
 		}
 	}
+	climateCounter++;
 
 	////time loop
 	//timeClient.update();

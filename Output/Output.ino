@@ -46,6 +46,7 @@ char aws_key[] = "AKIAILSQ743W4BJSZ67Q";
 char aws_secret[] = "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";
 char aws_region[] = "us-east-1";
 const char* aws_topic = "actions";
+const char* aws_sensors_info = "sensors/info";
 int port = 443;
 
 //MQTT config
@@ -79,9 +80,11 @@ char reportedValue[16];
 
 //output
 const char* outputName = "myoutput";
+const char* outputType = "myoutputType";
 const char* operation1 = "on";
 const char* operation2 = "off";
 const char* operation3 = "other_operation";
+
 
 //ir
 IRsend irsend(4);  // An IR LED is controlled by GPIO pin 4 (D2)
@@ -200,6 +203,24 @@ void subscribe() {
 	Serial.println("MQTT subscribed");
 }
 
+void sendSensorInfo() {
+	StaticJsonBuffer<messageLength> jsonBuffer;
+	JsonObject& root = jsonBuffer.createObject();
+	root[outputType] = outputName;
+
+	char buf[messageLength];
+	root.printTo(buf, messageLength);
+
+	//send a message
+	MQTT::Message message;
+	message.qos = MQTT::QOS0;
+	message.retained = false;
+	message.dup = false;
+	message.payload = (void*)buf;
+	message.payloadlen = strlen(buf) + 1;
+	int rc = client->publish(aws_sensors_info, message);
+}
+
 
 void setup() {
 	Serial.begin(115200);
@@ -238,6 +259,8 @@ void loop() {
 			subscribe();
 		}
 	}
+
+	sendSensorInfo();
 }
 
 

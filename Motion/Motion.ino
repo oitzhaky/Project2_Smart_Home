@@ -85,7 +85,9 @@ char reportedValue[16];
 
 
 //sensor
-const char* sensorName = "motion";
+const char* sensorName = "motion_room";
+const char* sensorType = "motion";
+const char* aws_sensors_info = "sensors/info";
 
 //motion detection
 int motionInputPin = D1; // input pin for PIR sensor
@@ -233,6 +235,24 @@ void sendmessage() {
 	int rc = client->publish(aws_topic, message);
 }
 
+void sendSensorInfo() {
+	StaticJsonBuffer<messageLength> jsonBuffer;
+	JsonObject& root = jsonBuffer.createObject();
+	root[sensorType] = sensorName;
+
+	char buf[messageLength];
+	root.printTo(buf, messageLength);
+
+	//send a message
+	MQTT::Message message;
+	message.qos = MQTT::QOS0;
+	message.retained = false;
+	message.dup = false;
+	message.payload = (void*)buf;
+	message.payloadlen = strlen(buf) + 1;
+	int rc = client->publish(aws_sensors_info, message);
+}
+
 
 void setup() {
 	Serial.begin(115200);
@@ -281,6 +301,8 @@ void loop() {
 			subscribe();
 		}
 	}
+
+	sendSensorInfo();
 
 	// motion loop
 	motionMeasurement = digitalRead(motionInputPin);  // read input value

@@ -22,6 +22,15 @@
         <activity android:name=".InputActionsActivity"
             android:parentActivityName="com.example.oitzh.myapplication.MainActivity">
         </activity>
+        <activity android:name=".NameActivity"
+            android:parentActivityName="com.example.oitzh.myapplication.MainActivity">
+        </activity>
+        <activity android:name=".InputActivity"
+            android:parentActivityName="com.example.oitzh.myapplication.MainActivity">
+        </activity>
+        <activity android:name=".ActionsActivity"
+            android:parentActivityName="com.example.oitzh.myapplication.MainActivity">
+        </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

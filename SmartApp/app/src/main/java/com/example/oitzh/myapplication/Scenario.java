@@ -20,15 +20,21 @@ public class Scenario implements Serializable {
     @Attribute
     private String scenarioName;
 
+
     @ElementList
     private List<ScenarioButton> inputButtons = new ArrayList<>();
 
     @ElementList
     private List<ScenarioButton> actionButtons = new ArrayList<>();
+
     public ScenarioInput scenarioInput = new ScenarioInput();
     public ScenarioAction scenarioAction = new ScenarioAction();
 
     public Scenario(){}
+
+    public Scenario(String name){
+        this.scenarioName=name;
+    }
 
     public Scenario(List<ScenarioButton> inputs, List<ScenarioButton> actions) {
         this.inputButtons = inputs;
@@ -103,6 +109,15 @@ public class Scenario implements Serializable {
     public void setScenarioName(String newScenarioName) {
         this.scenarioName = newScenarioName;
     }
+
+    public void setInputButtons(List<ScenarioButton> inputButtons) {
+        this.inputButtons = inputButtons;
+    }
+
+    public void setActionButtons(List<ScenarioButton> actionButtons) {
+        this.actionButtons = actionButtons;
+    }
+
 
 //    public String printString() {
 //

@@ -13,11 +13,20 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by oitzh on 25/11/2017.
  */
 
+
+
 public class LocationMock {
+
+    final String topic = "sensors/data";
+    final String sensorInfptopic = "sensors/info";
+
     public static Place home = null;
     public static Place currentPlace = null;
     private FusedLocationProviderClient mFusedLocationClient;
@@ -31,20 +40,22 @@ public class LocationMock {
             @Override
             public void onSuccess(Location location) {
                 // Got last known location. In some rare situations this can be null.
+                publishSensorInfo();
                 if (location != null && home != null) {
                     float[] distance = new float[2];
                     Location.distanceBetween(location.getLatitude(), location.getLongitude(), home.getLatLng().latitude, home.getLatLng().longitude, distance);
                     float distanceCurrentFromHome = distance[0];
                     if (Math.round(distanceCurrentFromHome) < 1000) {
-                        mainActivity.publishLocation(ScenarioInput.Trigger.Location.When_Arriving);
+                        publishLocation(ScenarioInput.Trigger.Location.When_Arriving);
                     } else {
-                        mainActivity.publishLocation(ScenarioInput.Trigger.Location.When_Leaving);
+                        publishLocation(ScenarioInput.Trigger.Location.When_Leaving);
                     }
                     //location.distanceTo()
                     // Logic to handle location object
                 }
             }
         };
+        publishSensorInfo();
     }
 
 
@@ -58,5 +69,29 @@ public class LocationMock {
         mFusedLocationClient.getLastLocation()
                 .addOnSuccessListener((Activity) context, listener);
 
+    }
+
+    public void publishSensorInfo(){
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put(ScenarioInput.Name.Location.toString().toLowerCase(),"phone" );
+            String payLoad = obj.toString();
+            mainActivity.aws.publish(payLoad, sensorInfptopic);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void publishLocation(ScenarioInput.Trigger.Location location) {
+
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("sender", location.getClass().toString().substring(location.getClass().toString().lastIndexOf("$") - 1));
+            obj.put("location", location.toString().toLowerCase());
+            String payLoad = obj.toString();
+            mainActivity.aws.publish(payLoad, topic);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
