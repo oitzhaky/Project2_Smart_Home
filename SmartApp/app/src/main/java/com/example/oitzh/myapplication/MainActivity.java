@@ -245,6 +245,16 @@ public class MainActivity extends AppCompatActivity {
         aws.subscribe("sensors/info", AWSIotMqttQos.QOS0, awsIotMqttNewMessageCallback);
         aws.subscribe("actions", AWSIotMqttQos.QOS0, alertsSensorCallback);
 
+        //publish alert device info
+        JSONObject obj = new JSONObject();
+        try {
+            obj.put("alert", "phone");
+            String payLoad = obj.toString();
+            aws.publish(payLoad, "sensors/info");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         new Thread() {
             @Override
             public void run() {

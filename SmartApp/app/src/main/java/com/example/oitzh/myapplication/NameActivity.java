@@ -50,6 +50,7 @@ public class NameActivity extends AppCompatActivity {
 
     private void updateActivityButtonsByScenario(Scenario scenarioToEdit) {
         TextView editTextView = (TextView) findViewById(R.id.editTextView);
+        editTextView.setText(scenarioToEdit.getScenarioName());
     }
 
     protected void next(View view) {
