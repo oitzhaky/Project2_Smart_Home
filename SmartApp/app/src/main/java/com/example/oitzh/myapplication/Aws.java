@@ -46,23 +46,23 @@ public class Aws {
     // --- Constants to modify per your configuration ---
     // Certificate and key aliases in the KeyStore
     private static final String CERTIFICATE_ID = "default";
-    Context mainActivity;
-    AWSIotClient mIotAndroidClient;
-    AWSIotMqttManager mqttManager;
-    String clientId;
-    String keystorePath;
-    String keystoreName;
-    String keystorePassword;
-    KeyStore clientKeyStore = null;
-    String certificateId;
-    CognitoCachingCredentialsProvider credentialsProvider;
+    private Context mainActivity;
+    private AWSIotClient mIotAndroidClient;
+    private AWSIotMqttManager mqttManager;
+    private String clientId;
+    private String keystorePath;
+    private String keystoreName;
+    private String keystorePassword;
+    private KeyStore clientKeyStore = null;
+    private String certificateId;
+    private CognitoCachingCredentialsProvider credentialsProvider;
 
 
-    public Aws(Context context) {
+    Aws(Context context) {
         this.mainActivity = context;
     }
 
-    public void initialize() {
+    void initialize() {
 
         //region AWS CONNECT Listener Code
 //        View.OnClickListener connectClick = new View.OnClickListener() {
@@ -233,7 +233,7 @@ public class Aws {
         //endregion
     }
 
-    public void connect() {
+    void connect() {
         try {
             mqttManager.connect(clientKeyStore, new AWSIotMqttClientStatusCallback() {
                 @Override
@@ -274,7 +274,7 @@ public class Aws {
         }
     }
 
-    public void subscribe(String topic, AWSIotMqttQos awsIotMqttQos, AWSIotMqttNewMessageCallback awsIotMqttNewMessageCallback) {
+    void subscribe(String topic, AWSIotMqttQos awsIotMqttQos, AWSIotMqttNewMessageCallback awsIotMqttNewMessageCallback) {
         try {
             Thread.sleep(2000);
             mqttManager.subscribeToTopic(topic, awsIotMqttQos, awsIotMqttNewMessageCallback);
@@ -283,7 +283,7 @@ public class Aws {
         }
     }
 
-    public void publish(String msg, String topic) {
+    void publish(String msg, String topic) {
         try {
             mqttManager.publishString(msg, topic, AWSIotMqttQos.QOS0);
         } catch (Exception e) {

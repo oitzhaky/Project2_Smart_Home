@@ -115,24 +115,4 @@ public class Scenario implements Serializable {
         this.actionButtons = actionButtons;
     }
 
-
-//    public String printString() {
-//
-//        String msg = "";
-//
-//
-//        for (ScenarioButton scenarioButton : toggledButtons) {
-//int id = scenarioButton.getToggleButtonID();
-//    final ToggleButton toggleButton = (ToggleButton) findViewById(id);
-//            msg += scenarioButton.getTagName() + ":"; //Get imageButton's tag attribute
-//            //msg += getResources().getResourceName(imageButton.getId()).split("/")[1] + ":"; //"ScenarioButton: ";
-//            for (int index = 0; index < scenarioButton.getSelectedDialogOptions().length; index++) {
-//                if (scenarioButton.getSelectedDialogOptions()[index] == true) {
-//                    msg += scenarioButton.getDialogOptions()[index] + "  ";
-//                }
-//            }
-//        }
-//
-//        return msg;
-//    }
 }

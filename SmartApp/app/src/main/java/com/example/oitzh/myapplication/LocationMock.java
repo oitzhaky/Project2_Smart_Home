@@ -84,8 +84,8 @@ public class LocationMock {
 
         JSONObject obj = new JSONObject();
         try {
-            obj.put("sender", location.getClass().toString().substring(location.getClass().toString().lastIndexOf("$") - 1));
-            obj.put("location", location.toString().toLowerCase());
+            obj.put("sender", location.getClass().toString().substring(location.getClass().toString().lastIndexOf("$") +1).toLowerCase());
+            obj.put("phone", location.toString().toLowerCase());
             String payLoad = obj.toString();
             mainActivity.aws.publish(payLoad, topic);
         } catch (JSONException e) {

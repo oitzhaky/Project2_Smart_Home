@@ -48,6 +48,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.example.oitzh.myapplication.Aws.LOG_TAG;
 
@@ -70,6 +72,11 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Scenario> itemScenarioListXml;
     HashMap<Object, List<String>> sensorsInfo = new HashMap<>();
     private FusedLocationProviderClient mFusedLocationClient;
+    Timer timer;
+    TimerTask clearSensorsInfoTask;
+    TimerTask publishAlert;
+    HashMap<String,Long> scenariosWithAlerts = new HashMap<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +122,16 @@ public class MainActivity extends AppCompatActivity {
         mChannel.enableVibration(true);
         mChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
         mNotificationManager.createNotificationChannel(mChannel);
+
+        //Periodically clear sensors info to verify updated data
+        timer = new Timer();
+        clearSensorsInfoTask = new TimerTask() {
+            @Override
+            public void run() {
+                sensorsInfo.clear();
+            }
+        };
+        timer.schedule(clearSensorsInfoTask,30*1000);
 
         AWSIotMqttNewMessageCallback awsIotMqttNewMessageCallback = new AWSIotMqttNewMessageCallback() {
             @Override
@@ -174,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         };
+
         AWSIotMqttNewMessageCallback alertsSensorCallback = new AWSIotMqttNewMessageCallback() {
             @Override
             public void onMessageArrived(final String topic, final byte[] data) {
@@ -190,38 +208,46 @@ public class MainActivity extends AppCompatActivity {
                         String stringKey = keys.next();
                         if (stringKey.equals("alert")) {
                             String value = (String) jsonObject.get(stringKey);
-                            // The id of the channel.
-                            String CHANNEL_ID = "my_channel_01";
-                            NotificationCompat.Builder mBuilder =
-                                    new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
-                                            .setSmallIcon(R.drawable.ic_warning_black_24px)
-                                            .setContentTitle("Alert")
-                                            .setContentText(value);
-                            // Creates an explicit intent for an Activity in your app
-                            Intent resultIntent = new Intent(MainActivity.this, MainActivity.class);
+                            String scenarioName = (String) jsonObject.get(keys.next());
+                            String scenarioCondition = (String) jsonObject.get(keys.next());
+                            if (!scenariosWithAlerts.containsKey(scenarioName) || (scenariosWithAlerts.containsKey(scenarioName) && (System.currentTimeMillis() - scenariosWithAlerts.get(scenarioName))> 60*1000) ) {
 
-                            // The stack builder object will contain an artificial back stack for the
-                            // started Activity.
-                            // This ensures that navigating backward from the Activity leads out of
-                            // your app to the Home screen.
-                            TaskStackBuilder stackBuilder = TaskStackBuilder.create(MainActivity.this);
-                            // Adds the back stack for the Intent (but not the Intent itself)
-                            stackBuilder.addParentStack(MainActivity.class);
-                            // Adds the Intent that starts the Activity to the top of the stack
-                            stackBuilder.addNextIntent(resultIntent);
-                            PendingIntent resultPendingIntent =
-                                    stackBuilder.getPendingIntent(
-                                            0,
-                                            PendingIntent.FLAG_UPDATE_CURRENT
-                                    );
-                            mBuilder.setContentIntent(resultPendingIntent);
-                            NotificationManager mNotificationManager =
-                                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                                // The id of the channel.
+                                String CHANNEL_ID = "my_channel_01";
+                                NotificationCompat.Builder mBuilder =
+                                        new NotificationCompat.Builder(MainActivity.this, CHANNEL_ID)
+                                                .setSmallIcon(R.drawable.ic_warning_black_24px)
+                                                .setContentTitle("Alert")
+                                                .setContentText(scenarioCondition);
+                                // Creates an explicit intent for an Activity in your app
+                                Intent resultIntent = new Intent(MainActivity.this, MainActivity.class);
 
-                            // mNotificationId is a unique integer your app uses to identify the
-                            // notification. For example, to cancel the notification, you can pass its ID
-                            // number to NotificationManager.cancel().
-                            mNotificationManager.notify(1, mBuilder.build());
+                                // The stack builder object will contain an artificial back stack for the
+                                // started Activity.
+                                // This ensures that navigating backward from the Activity leads out of
+                                // your app to the Home screen.
+                                TaskStackBuilder stackBuilder = TaskStackBuilder.create(MainActivity.this);
+                                // Adds the back stack for the Intent (but not the Intent itself)
+                                stackBuilder.addParentStack(MainActivity.class);
+                                // Adds the Intent that starts the Activity to the top of the stack
+                                stackBuilder.addNextIntent(resultIntent);
+                                PendingIntent resultPendingIntent =
+                                        stackBuilder.getPendingIntent(
+                                                0,
+                                                PendingIntent.FLAG_UPDATE_CURRENT
+                                        );
+                                mBuilder.setContentIntent(resultPendingIntent);
+                                NotificationManager mNotificationManager =
+                                        (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+                                // mNotificationId is a unique integer your app uses to identify the
+                                // notification. For example, to cancel the notification, you can pass its ID
+                                // number to NotificationManager.cancel().
+                                mNotificationManager.notify(1, mBuilder.build());
+
+                                scenariosWithAlerts.put(scenarioName, System.currentTimeMillis());
+
+                            }
                         }
                     }
                 } catch (JSONException e) {
@@ -248,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
         //publish alert device info
         JSONObject obj = new JSONObject();
         try {
-            obj.put("alert", "phone");
+            obj.put("alert", "alert");
             String payLoad = obj.toString();
             aws.publish(payLoad, "sensors/info");
         } catch (JSONException e) {
